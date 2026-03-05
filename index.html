@@ -130,11 +130,6 @@ animation:blink 1s infinite;
 <div class="digit" id="m1">0</div>
 <div class="digit" id="m2">0</div>
 
-<div class="sep">:</div>
-
-<div class="digit" id="s1">0</div>
-<div class="digit" id="s2">0</div>
-
 </div>
 
 
@@ -175,16 +170,12 @@ var now = new Date();
 
 var h = now.getHours().toString().padStart(2,'0');
 var m = now.getMinutes().toString().padStart(2,'0');
-var s = now.getSeconds().toString().padStart(2,'0');
 
 updateDigit("h1",h[0]);
 updateDigit("h2",h[1]);
 
 updateDigit("m1",m[0]);
 updateDigit("m2",m[1]);
-
-updateDigit("s1",s[0]);
-updateDigit("s2",s[1]);
 
 }
 
