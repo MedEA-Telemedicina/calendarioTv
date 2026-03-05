@@ -8,7 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
 
 <style>
-html, body{
+
+html,body{
 margin:0;
 padding:0;
 background:black;
@@ -26,10 +27,24 @@ height:100%;
 }
 
 iframe{
+position:absolute;
+top:0;
+left:0;
 width:100%;
 height:100%;
 border:none;
 background:white;
+opacity:0;
+transition:opacity 0.6s;
+}
+
+iframe.active{
+opacity:1;
+z-index:2;
+}
+
+iframe.hidden{
+z-index:1;
 }
 
 #clock{
@@ -46,6 +61,7 @@ border-radius:14px;
 box-shadow:0 0 10px rgba(0,229,255,0.6);
 z-index:9999;
 }
+
 </style>
 </head>
 
@@ -54,21 +70,22 @@ z-index:9999;
 <div id="clock">--:--</div>
 
 <div class="container">
-<iframe id="frameA"></iframe>
-<iframe id="frameB" style="display:none"></iframe>
+<iframe id="frame1" class="active"></iframe>
+<iframe id="frame2" class="hidden"></iframe>
 </div>
 
 <script>
 
 var baseUrl = "https://medeadigitalhealth-my.sharepoint.com/personal/a_marino_med-ea_it/_layouts/15/Doc.aspx?sourcedoc={262d4f88-53c5-4e88-bae3-869f9d2a3b6e}&action=embedview&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True&Item='LAVAGNA%20GIORNALIERA'!B1%3AAK23";
 
-var frameA = document.getElementById("frameA");
-var frameB = document.getElementById("frameB");
+var frame1 = document.getElementById("frame1");
+var frame2 = document.getElementById("frame2");
 
-var activeFrame = frameA;
-var hiddenFrame = frameB;
+var active = frame1;
+var hidden = frame2;
 
-frameA.src = baseUrl;
+frame1.src = baseUrl;
+
 
 function pad(n){
 return n<10 ? "0"+n : n;
@@ -76,45 +93,51 @@ return n<10 ? "0"+n : n;
 
 function updateClock(){
 var now = new Date();
-document.getElementById("clock").innerHTML = pad(now.getHours()) + ":" + pad(now.getMinutes());
+document.getElementById("clock").innerHTML =
+pad(now.getHours()) + ":" + pad(now.getMinutes());
 }
 
 setInterval(updateClock,1000);
 updateClock();
 
 
+
 function refresh(){
 
-hiddenFrame.onload = null;
+hidden.onload=null;
 
-hiddenFrame.src = baseUrl + "&cache=" + new Date().getTime();
+hidden.src = baseUrl + "&cache=" + new Date().getTime();
 
-hiddenFrame.onload = function(){
+hidden.onload=function(){
 
 setTimeout(function(){
 
-activeFrame.style.display="none";
-hiddenFrame.style.display="block";
+hidden.classList.add("active");
+active.classList.remove("active");
 
-var temp = activeFrame;
-activeFrame = hiddenFrame;
-hiddenFrame = temp;
+var temp = active;
+active = hidden;
+hidden = temp;
 
-},500); // ritardo per evitare flash bianco
+},400);
 
 };
 
 }
 
-setInterval(refresh,60000);
+setInterval(refresh,90000);
+
 
 
 function antiFreeze(){
+
 window.scrollBy(0,1);
 window.scrollBy(0,-1);
+
 }
 
 setInterval(antiFreeze,20000);
+
 
 
 setTimeout(function(){
@@ -122,4 +145,6 @@ location.reload();
 },28800000);
 
 </script>
+
+</body>
 </html>
