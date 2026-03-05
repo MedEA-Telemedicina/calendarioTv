@@ -17,24 +17,18 @@ overflow:hidden;
 height:100%;
 }
 
-/* contenitore */
-
-#viewer{
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-overflow:hidden;
-}
-
-/* iframe excel */
+/* calendario */
 
 iframe{
+position:absolute;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
 border:none;
-transform-origin:top left;
 }
 
-/* orologio */
+/* OROLOGIO MODERNO */
 
 #clock{
 
@@ -71,47 +65,23 @@ z-index:9999;
 
 <div id="clock"></div>
 
-<div id="viewer">
 <iframe id="frameA"></iframe>
 <iframe id="frameB" style="display:none"></iframe>
-</div>
 
 <script>
+
+// URL Excel con INCORPORA
 
 const url="https://medeadigitalhealth-my.sharepoint.com/personal/a_marino_med-ea_it/_layouts/15/Doc.aspx?sourcedoc={262d4f88-53c5-4e88-bae3-869f9d2a3b6e}&action=embedview&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True&Item='LAVAGNA%20GIORNALIERA'!B1%3AAK23";
 
 let active="A";
 
-const baseWidth=1600;
-const baseHeight=900;
-
-function fit(){
-
-let scale=Math.min(
-window.innerWidth/baseWidth,
-window.innerHeight/baseHeight
-);
-
-let viewer=document.getElementById("viewer");
-viewer.style.width=baseWidth+"px";
-viewer.style.height=baseHeight+"px";
-
-let frames=document.querySelectorAll("iframe");
-
-frames.forEach(f=>{
-f.style.width=baseWidth+"px";
-f.style.height=baseHeight+"px";
-f.style.transform="scale("+scale+")";
-});
-
-}
-
-window.addEventListener("resize",fit);
-
 document.getElementById("frameA").src=url;
 
 
+// ------------------
 // OROLOGIO
+// ------------------
 
 function updateClock(){
 
@@ -128,7 +98,9 @@ setInterval(updateClock,1000);
 updateClock();
 
 
+// ------------------
 // REFRESH INVISIBILE
+// ------------------
 
 function refresh(){
 
@@ -151,7 +123,9 @@ next.src=url+"&t="+new Date().getTime();
 setInterval(refresh,60000);
 
 
+// ------------------
 // ANTI FREEZE TV
+// ------------------
 
 setInterval(function(){
 
@@ -161,16 +135,15 @@ window.scrollTo(0,0);
 },20000);
 
 
-// HARD RESET
+// ------------------
+// HARD RESET 8 ORE
+// ------------------
 
 setTimeout(function(){
 
 location.reload();
 
 },28800000);
-
-
-fit();
 
 </script>
 
