@@ -7,32 +7,119 @@
 
 <style>
 
-body{
+html,body{
 margin:0;
+padding:0;
 background:black;
 overflow:hidden;
+height:100%;
+}
+
+#container{
+position:fixed;
+top:0;
+left:0;
+width:100vw;
+height:100vh;
 }
 
 iframe{
-width:100vw;
-height:100vh;
+width:100%;
+height:100%;
 border:none;
 }
 
-</style>
+#clock{
+position:fixed;
+top:10px;
+right:20px;
+color:white;
+font-family:Arial;
+font-size:22px;
+opacity:0.7;
+z-index:10;
+}
 
-<script>
-setInterval(function(){
- location.reload();
-},60000);
-</script>
+</style>
 
 </head>
 
 <body>
 
-<iframe src="https://medeadigitalhealth-my.sharepoint.com/personal/a_marino_med-ea_it/_layouts/15/Doc.aspx?sourcedoc={262d4f88-53c5-4e88-bae3-869f9d2a3b6e}&action=embedview&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True"></iframe>
+<div id="clock"></div>
+
+<div id="container">
+<iframe id="excelFrame"
+src="https://medeadigitalhealth-my.sharepoint.com/personal/a_marino_med-ea_it/_layouts/15/Doc.aspx?sourcedoc={262d4f88-53c5-4e88-bae3-869f9d2a3b6e}&action=embedview&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True">
+</iframe>
+</div>
+
+<script>
+
+// -----------------------
+// ORARIO
+// -----------------------
+
+function updateClock(){
+
+const now = new Date();
+
+let h = String(now.getHours()).padStart(2,'0');
+let m = String(now.getMinutes()).padStart(2,'0');
+
+document.getElementById("clock").innerText = h + ":" + m;
+
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+
+// -----------------------
+// REFRESH IFRAME
+// -----------------------
+
+function refreshFrame(){
+
+const frame = document.getElementById("excelFrame");
+
+frame.src = frame.src;
+
+}
+
+// aggiorna ogni 60 secondi
+setInterval(refreshFrame,60000);
+
+
+// -----------------------
+// ANTI FREEZE TV
+// -----------------------
+
+let lastMove = Date.now();
+
+function keepAlive(){
+
+// piccolo movimento invisibile per evitare standby browser TV
+window.scrollTo(0,1);
+window.scrollTo(0,0);
+
+}
+
+setInterval(keepAlive,20000);
+
+
+// -----------------------
+// HARD RELOAD OGNI 6 ORE
+// evita accumulo memoria TV
+// -----------------------
+
+setTimeout(function(){
+
+location.reload();
+
+},21600000);
+
+</script>
 
 </body>
-
 </html>
