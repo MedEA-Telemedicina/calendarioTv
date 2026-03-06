@@ -17,7 +17,7 @@ overflow:hidden;
 font-family:Segoe UI,Arial;
 }
 
-iframe{
+.viewer{
 position:absolute;
 top:0;
 left:0;
@@ -25,6 +25,13 @@ width:100%;
 height:100%;
 border:none;
 background:white;
+opacity:0;
+transition:opacity .6s;
+}
+
+.viewer.active{
+opacity:1;
+z-index:2;
 }
 
 /* clock */
@@ -73,7 +80,8 @@ animation:blink 1s infinite;
 
 <body>
 
-<iframe id="viewer"></iframe>
+<iframe id="frame1" class="viewer active"></iframe>
+<iframe id="frame2" class="viewer"></iframe>
 
 <div id="clock">
 
@@ -89,32 +97,62 @@ animation:blink 1s infinite;
 
 <script>
 
-/* URL excel */
+/* URL EXCEL */
 
 var baseUrl="https://medeadigitalhealth-my.sharepoint.com/personal/a_marino_med-ea_it/_layouts/15/Doc.aspx?sourcedoc={262d4f88-53c5-4e88-bae3-869f9d2a3b6e}&action=embedview&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True&Item='LAVAGNA%20GIORNALIERA'!A1%3AAK21";
 
-var iframe=document.getElementById("viewer");
+/* iframe */
 
-/* carica iframe */
+var frame1=document.getElementById("frame1");
+var frame2=document.getElementById("frame2");
 
-function loadViewer(){
-iframe.src=baseUrl+"&t="+Date.now();
+var active=frame1;
+var hidden=frame2;
+
+/* carica */
+
+function loadHidden(){
+
+hidden.src=baseUrl+"&t="+Date.now();
+
+hidden.onload=function(){
+
+hidden.classList.add("active");
+active.classList.remove("active");
+
+/* libera memoria */
+
+active.src="about:blank";
+
+/* swap */
+
+var temp=active;
+active=hidden;
+hidden=temp;
+
+};
+
 }
 
-loadViewer();
+/* primo caricamento */
 
-/* refresh excel ogni 2 minuti */
+active.src=baseUrl+"&t="+Date.now();
 
-setInterval(loadViewer,120000);
+/* refresh excel */
+
+setInterval(loadHidden,300000); // 5 minuti
 
 
-/* clock */
+/* orologio */
 
 function updateDigit(id,val){
+
 var el=document.getElementById(id);
+
 if(el.innerHTML!==val){
 el.innerHTML=val;
 }
+
 }
 
 function updateClock(){
@@ -136,7 +174,7 @@ setInterval(updateClock,1000);
 updateClock();
 
 
-/* anti freeze tv */
+/* anti freeze browser tv */
 
 setInterval(function(){
 
@@ -146,13 +184,13 @@ window.scrollBy(0,-1);
 },20000);
 
 
-/* reload completo ogni 15 minuti */
+/* reload sicurezza */
 
 setInterval(function(){
 
 location.reload();
 
-},900000);
+},1800000); // 30 minuti
 
 </script>
 
