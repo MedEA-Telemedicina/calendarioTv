@@ -44,8 +44,11 @@ html, body {
   top: 4px; left: 0;
   width: 100%; height: 64px;
   z-index: 9998;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
   background: linear-gradient(180deg, rgba(10,22,45,0.98) 0%, rgba(7,15,28,0.92) 100%);
   border-bottom: 1px solid rgba(59,130,246,0.3);
@@ -74,8 +77,8 @@ html, body {
 }
 #loader-bar.running {
   opacity: 1;
-  -webkit-animation: loadAnim 22s linear forwards;
-  animation: loadAnim 22s linear forwards;
+  -webkit-animation: loadAnim 25s linear forwards;
+  animation: loadAnim 25s linear forwards;
 }
 @-webkit-keyframes loadAnim {
   0%   { width: 0%; }
@@ -97,21 +100,20 @@ html, body {
   right: 0;
   overflow: hidden;
   z-index: 1;
+  background: #070f1c;
 }
 
-#viewer-main {
+/* Due iframe sovrapposti: quello attivo sta sopra, quello in caricamento sotto */
+.viewer-frame {
   position: absolute;
   top: 0; left: 0;
   border: none;
   display: block;
+  -webkit-transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease;
 }
 
-/*
-  Overlay SOLO per il primo caricamento.
-  Durante i refresh successivi NON viene mostrato:
-  l'iframe mantiene il vecchio contenuto visibile
-  finché il nuovo non è pronto (zero memoria extra).
-*/
+/* Overlay SOLO per il primo avvio */
 #reload-overlay {
   position: fixed;
   top: 71px; left: 0;
@@ -119,7 +121,9 @@ html, body {
   background: #070f1c;
   z-index: 5000;
   display: none;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
 }
 #reload-overlay.visible {
@@ -133,8 +137,11 @@ html, body {
   bottom: 0; left: 0;
   width: 100%; height: 90px;
   z-index: 9998;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
   padding: 0 40px;
   background: linear-gradient(0deg, rgba(10,22,45,0.98) 0%, rgba(7,15,28,0.92) 100%);
@@ -143,20 +150,26 @@ html, body {
 
 /* Orologio */
 #clock {
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
   gap: 4px;
 }
 
 .clock-block {
+  display: -webkit-flex;
   display: flex;
   gap: 2px;
 }
 
 .digit {
   width: 52px; height: 72px;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
   font-size: 62px;
   font-weight: 800;
@@ -186,7 +199,9 @@ html, body {
 }
 
 .digit-sec {
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: flex-end;
   align-items: flex-end;
   padding-bottom: 10px;
   gap: 1px;
@@ -203,18 +218,33 @@ html, body {
 /* Centro footer */
 #footer-center {
   text-align: center;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
+}
+
+#footer-logo-img {
+  height: 52px;
+  width: auto;
+  /* Forza il mantenimento in memoria */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 #refresh-status {
   margin-top: 6px;
   font-size: 12px;
   color: #475569;
+  display: -webkit-flex;
   display: flex;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
   gap: 6px;
 }
@@ -237,11 +267,14 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
-/* Destra footer: prossimo aggiornamento */
+/* Destra footer */
 #footer-right {
   text-align: right;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-justify-content: center;
   justify-content: center;
 }
 
@@ -279,11 +312,19 @@ html, body {
 <!-- LOADER BAR -->
 <div id="loader-bar"></div>
 
-<!-- SINGOLO IFRAME (basso consumo memoria) -->
+<!--
+  DOPPIO IFRAME per transizioni senza flash nero.
+  viewer-a = iframe attivo (visibile)
+  viewer-b = iframe in caricamento (nascosto finché pronto)
+  Dopo lo swap, il vecchio iframe viene svuotato per liberare memoria.
+  Risultato: sempre 1 solo iframe caricato, transizione fluida.
+-->
 <div id="viewer-wrap">
-  <iframe id="viewer-main" scrolling="no"></iframe>
+  <iframe id="viewer-a" class="viewer-frame" scrolling="no"></iframe>
+  <iframe id="viewer-b" class="viewer-frame" scrolling="no"></iframe>
 </div>
-<!-- Overlay: visibile SOLO al primo avvio, nascosto durante i refresh -->
+
+<!-- Overlay: visibile SOLO al primo avvio -->
 <div id="reload-overlay" class="visible"></div>
 
 <!-- FOOTER -->
@@ -306,9 +347,9 @@ html, body {
   </div>
 
   <div id="footer-center">
-    <img id="footer-logo-img" src="data:image/png;base64,Qk2KCxMAAAAAAIoAAAB8AAAAsAQAAAQBAAABACAAAwAAAAALEwAjLgAAIy4AAAAAAAAAAAAAAAD/AAD/AAD/AAAAAAAA/0JHUnOAwvUoYLgeFSCF6wFAMzMTgGZmJkBmZgagmZkJPArXAyRcjzIAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" style="height:40px;opacity:0.85;">
+    <img id="footer-logo-img" src="data:image/png;base64,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" alt="medEA">
     <div id="refresh-status">
-      <span id="refresh-icon">✔</span>
+      <span id="refresh-icon">&#x2714;</span>
       <span id="refresh-text">Aggiornato alle —</span>
     </div>
   </div>
@@ -339,9 +380,12 @@ function applyViewerSize() {
   var w = window.innerWidth;
   var visibleH = window.innerHeight - headerH - footerH;
   var iframeH  = visibleH + EXCEL_BAR_PX;
-  var iv = document.getElementById('viewer-main');
-  iv.style.width  = w + 'px';
-  iv.style.height = iframeH + 'px';
+  var frames = ['viewer-a', 'viewer-b'];
+  for (var i = 0; i < frames.length; i++) {
+    var iv = document.getElementById(frames[i]);
+    iv.style.width  = w + 'px';
+    iv.style.height = iframeH + 'px';
+  }
 }
 applyViewerSize();
 window.addEventListener('resize', applyViewerSize);
@@ -352,7 +396,26 @@ var MESI   = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','
 var lastUpdated = null;
 var nextRefresh = null;
 var reloading   = false;
-var firstLoad   = true; // true solo al primo caricamento
+
+/*
+  Gestione doppio iframe:
+  activeSlot = 'a' o 'b' -> quale iframe e' attualmente visibile
+  L'altro slot e' in standby (src='') e viene usato per il prossimo caricamento.
+*/
+var activeSlot = 'a'; // al primo avvio caricheremo in 'a'
+
+function getActiveFrame()  { return document.getElementById('viewer-' + activeSlot); }
+function getStandbyFrame() { return document.getElementById('viewer-' + (activeSlot === 'a' ? 'b' : 'a')); }
+
+/* Imposta stato visivo degli iframe */
+function setFrameStates(activeZ, standbyZ, activeOp, standbyOp) {
+  var af = getActiveFrame();
+  var sf = getStandbyFrame();
+  af.style.zIndex  = activeZ;
+  sf.style.zIndex  = standbyZ;
+  af.style.opacity = activeOp;
+  sf.style.opacity = standbyOp;
+}
 
 /* ── LOADER BAR ── */
 function startLoaderBar() {
@@ -366,71 +429,106 @@ function stopLoaderBar() {
   var bar = document.getElementById('loader-bar');
   bar.style.width = '100%';
   bar.style.opacity = '0';
-  setTimeout(function() { bar.className = ''; bar.style.width = '0%'; }, 400);
+  setTimeout(function() { bar.className = ''; bar.style.width = '0%'; bar.style.opacity = ''; }, 400);
 }
 
 /* ── ICONA REFRESH ── */
 function setRefreshIcon(loading) {
   var icon = document.getElementById('refresh-icon');
   if (loading) {
-    icon.textContent = '\u21BB'; // ↻
+    icon.innerHTML = '&#x21BB;';
     icon.className = 'spinning';
     icon.style.color = '#3b82f6';
   } else {
-    icon.textContent = '\u2714'; // ✔
+    icon.innerHTML = '&#x2714;';
     icon.className = '';
     icon.style.color = '#22c55e';
   }
 }
 
 /* ── OVERLAY (solo primo avvio) ── */
-function showOverlay() {
-  document.getElementById('reload-overlay').className = 'visible';
-}
 function hideOverlay() {
   document.getElementById('reload-overlay').className = '';
 }
 
 /*
-  ── CARICA IFRAME ──
-  Primo caricamento: usa iv.src (normale).
-  Refresh successivi: usa contentWindow.location.replace() per navigare
-  senza svuotare l'iframe → il vecchio contenuto resta visibile
-  fino al completamento del nuovo caricamento.
-  Zero memoria extra: nessun secondo iframe.
+  ── CARICA IFRAME con tecnica doppio-slot ──
+
+  1. Lo slot in standby riceve il nuovo URL (src)
+  2. Lo slot in standby si carica dietro allo slot attivo (z-index basso, opacita 0)
+  3. Quando e' pronto: lo slot standby diventa attivo (z-index alto, opacita 1)
+     con transizione CSS opacity 0.4s -> nessun flash nero
+  4. Il vecchio slot attivo viene svuotato (src='') per liberare memoria
+  5. Zero memoria extra in idle: sempre 1 solo iframe con contenuto
 */
-function loadViewer(url, onDone) {
-  var iv = document.getElementById('viewer-main');
+function loadIntoStandby(url, onDone) {
+  var standby = getStandbyFrame();
+
+  // Metti standby sotto (invisibile)
+  standby.style.zIndex  = '2';
+  standby.style.opacity = '0';
+  getActiveFrame().style.zIndex  = '3';
+  getActiveFrame().style.opacity = '1';
+
   var done = false;
   var timer = setTimeout(function() {
-    if (!done) { done = true; if (onDone) onDone(); }
-  }, 28000);
-  iv.onload = function() {
+    if (!done) { done = true; doSwap(); }
+  }, 30000); // timeout 30s
+
+  standby.onload = function() {
     if (!done) {
       done = true;
       clearTimeout(timer);
-      // piccola pausa per far renderizzare il contenuto
-      setTimeout(function() { if (onDone) onDone(); }, 1200);
+      // Pausa 1.2s per far renderizzare Excel prima di mostrarlo
+      setTimeout(doSwap, 1200);
     }
   };
 
-  if (firstLoad) {
-    // Primo avvio: imposta src normalmente
-    firstLoad = false;
-    iv.src = url;
-  } else {
-    /*
-      Refresh: naviga tramite contentWindow.location.replace()
-      Su Tizen/WebKit questo mantiene il vecchio contenuto visibile
-      durante il caricamento invece di mostrare uno schermo vuoto.
-      Fallback su iv.src se non disponibile.
-    */
-    try {
-      iv.contentWindow.location.replace(url);
-    } catch (e) {
-      iv.src = url;
-    }
+  standby.src = url;
+
+  function doSwap() {
+    var oldActive  = getActiveFrame();
+    var newActive  = getStandbyFrame();
+
+    // Porta il nuovo frame davanti con fade-in
+    newActive.style.zIndex  = '4';
+    newActive.style.opacity = '1';
+
+    // Dopo la transizione (0.5s), svuota il vecchio per liberare memoria
+    setTimeout(function() {
+      oldActive.src = '';
+      oldActive.style.zIndex  = '2';
+      oldActive.style.opacity = '0';
+
+      // Cambia quale slot e' considerato attivo
+      activeSlot = (activeSlot === 'a' ? 'b' : 'a');
+
+      if (onDone) onDone();
+    }, 500);
   }
+}
+
+/* ── PRIMO AVVIO (carica direttamente in slot A) ── */
+function firstLoad(url, onDone) {
+  var af = getActiveFrame();
+  af.style.zIndex  = '3';
+  af.style.opacity = '1';
+  getStandbyFrame().style.zIndex  = '2';
+  getStandbyFrame().style.opacity = '0';
+
+  var done = false;
+  var timer = setTimeout(function() {
+    if (!done) { done = true; if (onDone) onDone(); }
+  }, 30000);
+
+  af.onload = function() {
+    if (!done) {
+      done = true;
+      clearTimeout(timer);
+      setTimeout(function() { if (onDone) onDone(); }, 1200);
+    }
+  };
+  af.src = url;
 }
 
 /* ── RELOAD EXCEL ── */
@@ -439,11 +537,9 @@ function reloadExcel() {
   reloading = true;
   setRefreshIcon(true);
   startLoaderBar();
-  // NON mostriamo l'overlay: il vecchio contenuto resta visibile
-  // L'icona ↻ animata nel footer indica che è in corso l'aggiornamento
 
   var url = BASE_URL + '&t=' + Date.now();
-  loadViewer(url, function() {
+  loadIntoStandby(url, function() {
     reloading = false;
     stopLoaderBar();
     setRefreshIcon(false);
@@ -495,7 +591,8 @@ function updateClock() {
 (function init() {
   setRefreshIcon(true);
   startLoaderBar();
-  loadViewer(BASE_URL + '&t=' + Date.now(), function() {
+
+  firstLoad(BASE_URL + '&t=' + Date.now(), function() {
     hideOverlay();
     stopLoaderBar();
     setRefreshIcon(false);
@@ -521,6 +618,16 @@ function updateClock() {
     bar.style.opacity = '0.99';
     setTimeout(function() { bar.style.opacity = '1'; }, 100);
   }, 15000);
+
+  // Watchdog logo: controlla ogni 30s che l'immagine sia ancora visibile
+  // (difesa contro Tizen che sotto pressione memoria svuota i src base64)
+  var logoSrc = document.getElementById('footer-logo-img').src;
+  setInterval(function() {
+    var img = document.getElementById('footer-logo-img');
+    if (!img.src || img.src.length < 100 || img.naturalWidth === 0) {
+      img.src = logoSrc;
+    }
+  }, 30000);
 })();
 
 </script>
