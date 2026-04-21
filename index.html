@@ -93,6 +93,8 @@ html, body {
   position: fixed;
   top: 71px;
   left: 0;
+  bottom: 90px;       /* ancorata alla barra footer nera */
+  right: 0;
   overflow: hidden;   /* taglia la barra Excel in basso */
   z-index: 1;
 }
@@ -317,26 +319,23 @@ var REFRESH_INTERVAL_MS = 300000; // 5 minuti
 // EXCEL_BAR_PX = pixel della barra in basso di Excel da nascondere (aumenta se non basta)
 var EXCEL_BAR_PX = 40;
 
-(function applyViewerSize() {
+function applyViewerSize() {
   var headerH = 71;
   var footerH = 90;
   var w = window.innerWidth;
   var visibleH = window.innerHeight - headerH - footerH;
-  var iframeH  = visibleH + EXCEL_BAR_PX; // iframe più alto per tagliare la barra
+  var iframeH  = visibleH + EXCEL_BAR_PX; // iframe più alto per tagliare la barra Excel
 
-  // Wrapper: mostra solo la parte visibile
-  var wraps = document.querySelectorAll('.viewer-wrap');
-  for (var i = 0; i < wraps.length; i++) {
-    wraps[i].style.width  = w + 'px';
-    wraps[i].style.height = visibleH + 'px';
-  }
   // Iframe: più alto per nascondere la barra Excel in basso
+  // (la wrap è ancorata via CSS top/bottom, non serve impostarne l'altezza)
   var viewers = document.querySelectorAll('.viewer');
   for (var j = 0; j < viewers.length; j++) {
     viewers[j].style.width  = w + 'px';
     viewers[j].style.height = iframeH + 'px';
   }
-})();
+}
+applyViewerSize();
+window.addEventListener('resize', applyViewerSize);
 
 var GIORNI  = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
 var MESI    = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
