@@ -112,6 +112,17 @@ html, body {
   -webkit-transition: opacity 0.15s ease;
   transition: opacity 0.15s ease;
 }
+/* Standby nascosto con visibility (piu' affidabile di opacity su Tizen WebKit) */
+.viewer-frame.standby {
+  visibility: hidden;
+  opacity: 0;
+  z-index: 2;
+}
+.viewer-frame.active {
+  visibility: visible;
+  opacity: 1;
+  z-index: 3;
+}
 
 /* Overlay SOLO per il primo avvio */
 #reload-overlay {
@@ -407,14 +418,21 @@ var activeSlot = 'a'; // al primo avvio caricheremo in 'a'
 function getActiveFrame()  { return document.getElementById('viewer-' + activeSlot); }
 function getStandbyFrame() { return document.getElementById('viewer-' + (activeSlot === 'a' ? 'b' : 'a')); }
 
-/* Imposta stato visivo degli iframe */
-function setFrameStates(activeZ, standbyZ, activeOp, standbyOp) {
-  var af = getActiveFrame();
-  var sf = getStandbyFrame();
-  af.style.zIndex  = activeZ;
-  sf.style.zIndex  = standbyZ;
-  af.style.opacity = activeOp;
-  sf.style.opacity = standbyOp;
+/* Imposta stato visivo degli iframe tramite classi CSS */
+function setActive(el) {
+  el.classList.remove('standby');
+  el.classList.add('active');
+  // Forza anche via style per sicurezza su Tizen WebKit
+  el.style.visibility = 'visible';
+  el.style.opacity    = '1';
+  el.style.zIndex     = '3';
+}
+function setStandby(el) {
+  el.classList.remove('active');
+  el.classList.add('standby');
+  el.style.visibility = 'hidden';
+  el.style.opacity    = '0';
+  el.style.zIndex     = '2';
 }
 
 /* ── LOADER BAR ── */
@@ -465,11 +483,9 @@ var SWAP_DEBOUNCE_MS = 5000; // ms di silenzio dopo l'ultimo onload prima dello 
 function loadIntoStandby(url, onDone) {
   var standby = getStandbyFrame();
 
-  // Metti standby sotto (invisibile)
-  standby.style.zIndex  = '2';
-  standby.style.opacity = '0';
-  getActiveFrame().style.zIndex  = '3';
-  getActiveFrame().style.opacity = '1';
+  // Assicura che standby sia nascosto (visibility + opacity, piu' affidabile su Tizen)
+  setStandby(standby);
+  setActive(getActiveFrame());
 
   var done      = false;
   var swapTimer = null;
@@ -479,6 +495,7 @@ function loadIntoStandby(url, onDone) {
     if (!done) {
       done = true;
       if (swapTimer) clearTimeout(swapTimer);
+      standby.onload = null;
       doSwap();
     }
   }, 35000);
@@ -501,18 +518,20 @@ function loadIntoStandby(url, onDone) {
 
   function doSwap() {
     var oldActive = getActiveFrame();
-    var newActive = getStandbyFrame();
+    var newActive = getStandbyFrame(); // ancora standby prima del flip
 
-    // Porta il nuovo frame davanti con fade quasi-istantaneo (0.15s)
-    newActive.style.zIndex  = '4';
-    newActive.style.opacity = '1';
+    // Rendi visibile il nuovo frame (visibility prima, poi opacity per il fade)
+    newActive.style.visibility = 'visible';
+    newActive.style.zIndex     = '3';
+    newActive.style.opacity    = '1';
+    newActive.classList.remove('standby');
+    newActive.classList.add('active');
 
-    // Dopo la transizione, svuota il vecchio per liberare memoria
+    // Dopo la transizione, nascondi e svuota il vecchio per liberare RAM
     setTimeout(function() {
-      oldActive.onload = null;         // ← rimuovi handler residui
-      oldActive.src = 'about:blank';   // ← about:blank libera meglio la RAM su Tizen/WebKit
-      oldActive.style.zIndex  = '2';
-      oldActive.style.opacity = '0';
+      oldActive.onload = null;         // rimuovi handler residui
+      setStandby(oldActive);           // nasconde con visibility + opacity
+      oldActive.src = 'about:blank';   // libera memoria (Tizen/WebKit)
 
       // Cambia quale slot e' considerato attivo
       activeSlot = (activeSlot === 'a' ? 'b' : 'a');
@@ -525,10 +544,8 @@ function loadIntoStandby(url, onDone) {
 /* ── PRIMO AVVIO (carica direttamente in slot A, overlay copre tutto) ── */
 function firstLoad(url, onDone) {
   var af = getActiveFrame();
-  af.style.zIndex  = '3';
-  af.style.opacity = '1';
-  getStandbyFrame().style.zIndex  = '2';
-  getStandbyFrame().style.opacity = '0';
+  setActive(af);
+  setStandby(getStandbyFrame());
 
   var done      = false;
   var swapTimer = null;
