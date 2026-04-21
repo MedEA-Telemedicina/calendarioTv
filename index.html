@@ -314,27 +314,33 @@ var BASE_URL = "https://medeadigitalhealth-my.sharepoint.com/personal/a_marino_m
 var REFRESH_INTERVAL_MS = 300000; // 5 minuti
 
 // ── DIMENSIONI IFRAME: riempie tutto lo spazio disponibile
-// EXCEL_BAR_PX = pixel della barra in basso di Excel da nascondere (aumenta se non basta)
+// EXCEL_BAR_PX  = pixel della barra in basso di Excel da nascondere
+// EXCEL_TOP_PX  = pixel del chrome in alto di Excel da nascondere (sposta iframe su, guadagna spazio in basso)
 var EXCEL_BAR_PX = 40;
+var EXCEL_TOP_PX = 60;
 
 (function applyViewerSize() {
   var headerH = 71;
   var footerH = 90;
   var w = window.innerWidth;
   var visibleH = window.innerHeight - headerH - footerH;
-  var iframeH  = visibleH + EXCEL_BAR_PX; // iframe più alto per tagliare la barra
+  // Iframe più alto: nasconde barra in basso + chrome in alto
+  var iframeH  = visibleH + EXCEL_BAR_PX + EXCEL_TOP_PX;
 
-  // Wrapper: mostra solo la parte visibile
+  // Wrapper: dimensione area visibile
   var wraps = document.querySelectorAll('.viewer-wrap');
   for (var i = 0; i < wraps.length; i++) {
-    wraps[i].style.width  = w + 'px';
-    wraps[i].style.height = visibleH + 'px';
+    wraps[i].style.width    = w + 'px';
+    wraps[i].style.height   = visibleH + 'px';
+    wraps[i].style.overflow = 'hidden';
+    wraps[i].style.position = 'relative';
   }
-  // Iframe: più alto per nascondere la barra Excel in basso
+  // Iframe: spostato su di EXCEL_TOP_PX per nascondere chrome in alto
   var viewers = document.querySelectorAll('.viewer');
   for (var j = 0; j < viewers.length; j++) {
-    viewers[j].style.width  = w + 'px';
-    viewers[j].style.height = iframeH + 'px';
+    viewers[j].style.width     = w + 'px';
+    viewers[j].style.height    = iframeH + 'px';
+    viewers[j].style.marginTop = '-' + EXCEL_TOP_PX + 'px';
   }
 })();
 
