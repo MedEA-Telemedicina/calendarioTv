@@ -470,27 +470,32 @@ function hideOverlay() {
 }
 
 /*
-  ── CARICA IFRAME con tecnica doppio-slot + DEBOUNCE sull'ultimo onload ──
+  ── CARICA IFRAME con tecnica doppio-slot + MIN-WAIT + DEBOUNCE ──
 
-  Excel Online emette piu' eventi onload mentre carica la tabella.
-  Ogni onload resetta un timer da SWAP_DEBOUNCE_MS millisecondi.
-  Lo swap avviene solo quando Excel smette di emettere onload per
-  SWAP_DEBOUNCE_MS ms di fila -> la tabella e' completamente renderizzata.
-  Hard-timeout di 35s come ultima risorsa.
+  Strategia ibrida piu' affidabile:
+  - SWAP_MIN_WAIT_MS : attesa minima garantita dall'avvio del caricamento
+                       (Excel impiega ~12s, quindi 13s e' sicuro)
+  - SWAP_DEBOUNCE_MS : ms di silenzio dopo l'ULTIMO onload
+  Lo swap parte al MAX(MIN_WAIT, ultimo_onload + DEBOUNCE).
+  Cosi' anche se onload smette per 5s a meta' render, lo swap non parte
+  prima dei 13s garantiti.
+  Hard-timeout di 40s come ultima risorsa.
 */
-var SWAP_DEBOUNCE_MS = 5000; // ms di silenzio dopo l'ultimo onload prima dello swap
+var SWAP_MIN_WAIT_MS = 13000; // attesa minima garantita (Excel ~12s)
+var SWAP_DEBOUNCE_MS = 2000;  // silenzio minimo dopo l'ultimo onload
 
 function loadIntoStandby(url, onDone) {
-  var standby = getStandbyFrame();
+  var standby   = getStandbyFrame();
+  var loadStart = Date.now();
 
-  // Assicura che standby sia nascosto (visibility + opacity, piu' affidabile su Tizen)
+  // Assicura che standby sia nascosto
   setStandby(standby);
   setActive(getActiveFrame());
 
-  var done      = false;
-  var swapTimer = null;
+  var done        = false;
+  var swapTimer   = null;
 
-  // Hard-timeout: se dopo 35s non e' ancora pronto, fai lo swap comunque
+  // Hard-timeout assoluto
   var hardTimer = setTimeout(function() {
     if (!done) {
       done = true;
@@ -498,7 +503,7 @@ function loadIntoStandby(url, onDone) {
       standby.onload = null;
       doSwap();
     }
-  }, 35000);
+  }, 40000);
 
   standby.onload = function() {
     if (done) return;
@@ -506,10 +511,25 @@ function loadIntoStandby(url, onDone) {
     if (swapTimer) clearTimeout(swapTimer);
     swapTimer = setTimeout(function() {
       if (!done) {
-        done = true;
-        clearTimeout(hardTimer);
-        standby.onload = null; // ← rimuovi handler per evitare memory leak
-        doSwap();
+        // Controlla che sia trascorsa anche l'attesa minima
+        var elapsed = Date.now() - loadStart;
+        var remaining = SWAP_MIN_WAIT_MS - elapsed;
+        if (remaining > 0) {
+          // Aspetta il tempo residuo, poi fa lo swap
+          swapTimer = setTimeout(function() {
+            if (!done) {
+              done = true;
+              clearTimeout(hardTimer);
+              standby.onload = null;
+              doSwap();
+            }
+          }, remaining);
+        } else {
+          done = true;
+          clearTimeout(hardTimer);
+          standby.onload = null;
+          doSwap();
+        }
       }
     }, SWAP_DEBOUNCE_MS);
   };
@@ -518,24 +538,19 @@ function loadIntoStandby(url, onDone) {
 
   function doSwap() {
     var oldActive = getActiveFrame();
-    var newActive = getStandbyFrame(); // ancora standby prima del flip
+    var newActive = getStandbyFrame();
 
-    // Rendi visibile il nuovo frame (visibility prima, poi opacity per il fade)
     newActive.style.visibility = 'visible';
     newActive.style.zIndex     = '3';
     newActive.style.opacity    = '1';
     newActive.classList.remove('standby');
     newActive.classList.add('active');
 
-    // Dopo la transizione, nascondi e svuota il vecchio per liberare RAM
     setTimeout(function() {
-      oldActive.onload = null;         // rimuovi handler residui
-      setStandby(oldActive);           // nasconde con visibility + opacity
-      oldActive.src = 'about:blank';   // libera memoria (Tizen/WebKit)
-
-      // Cambia quale slot e' considerato attivo
+      oldActive.onload = null;
+      setStandby(oldActive);
+      oldActive.src = 'about:blank';
       activeSlot = (activeSlot === 'a' ? 'b' : 'a');
-
       if (onDone) onDone();
     }, 200);
   }
@@ -543,7 +558,8 @@ function loadIntoStandby(url, onDone) {
 
 /* ── PRIMO AVVIO (carica direttamente in slot A, overlay copre tutto) ── */
 function firstLoad(url, onDone) {
-  var af = getActiveFrame();
+  var af        = getActiveFrame();
+  var loadStart = Date.now();
   setActive(af);
   setStandby(getStandbyFrame());
 
@@ -551,19 +567,31 @@ function firstLoad(url, onDone) {
   var swapTimer = null;
 
   var hardTimer = setTimeout(function() {
-    if (!done) { done = true; if (onDone) onDone(); }
-  }, 35000);
+    if (!done) { done = true; af.onload = null; if (onDone) onDone(); }
+  }, 40000);
 
   af.onload = function() {
     if (done) return;
-    // Debounce identico: aspetta silenzio di SWAP_DEBOUNCE_MS dopo l'ultimo onload
     if (swapTimer) clearTimeout(swapTimer);
     swapTimer = setTimeout(function() {
       if (!done) {
-        done = true;
-        clearTimeout(hardTimer);
-        af.onload = null; // ← rimuovi handler per evitare memory leak
-        if (onDone) onDone();
+        var elapsed   = Date.now() - loadStart;
+        var remaining = SWAP_MIN_WAIT_MS - elapsed;
+        if (remaining > 0) {
+          swapTimer = setTimeout(function() {
+            if (!done) {
+              done = true;
+              clearTimeout(hardTimer);
+              af.onload = null;
+              if (onDone) onDone();
+            }
+          }, remaining);
+        } else {
+          done = true;
+          clearTimeout(hardTimer);
+          af.onload = null;
+          if (onDone) onDone();
+        }
       }
     }, SWAP_DEBOUNCE_MS);
   };
