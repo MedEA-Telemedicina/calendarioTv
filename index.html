@@ -419,6 +419,22 @@ html, body {
   padding: 3px 12px;
 }
 
+
+/* ── TURNO COMPLETO CHIP ── */
+.tc-label {
+  display: inline-block;
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: rgba(59,130,246,.20);
+  color: #93c5fd;
+  border: 1px solid rgba(59,130,246,.50);
+  text-shadow: 0 0 12px rgba(59,130,246,0.4);
+  border-radius: 20px;
+  padding: 3px 12px;
+}
+
 /* ── ECG BADGE IN TABELLA ── */
 .ecg-badge-chip {
   display: inline-block;
@@ -664,7 +680,7 @@ html, body {
       <!-- Mattina -->
       <div class="card">
         <div class="card-hdr green">Mattina</div>
-        <div class="section-label">Turno completo</div>
+        <div class="section-label"><span class="tc-label">Turno completo</span></div>
         <div class="doc-section" id="wrap-tc-mattina">
           <div class="doc-name" id="tc-mattina"></div>
         </div>
@@ -678,7 +694,7 @@ html, body {
       <!-- Pomeriggio -->
       <div class="card">
         <div class="card-hdr orange">Pomeriggio</div>
-        <div class="section-label">Turno completo</div>
+        <div class="section-label"><span class="tc-label">Turno completo</span></div>
         <div class="doc-section" id="wrap-tc-pomeriggio">
           <div class="doc-name" id="tc-pomeriggio"></div>
         </div>
