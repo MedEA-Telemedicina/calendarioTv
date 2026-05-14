@@ -13,10 +13,10 @@
 
 html, body {
   width: 100%; height: 100%;
-  background: #f0f2f8;
+  background: #040912;
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   overflow: hidden;
-  color: #0f172a;
+  color: #f0f4ff;
 }
 
 /* ── BARRA TOP ANIMATA ── */
@@ -52,17 +52,17 @@ html, body {
   align-items: center;
   -webkit-justify-content: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 100%);
-  border-bottom: 2px solid rgba(59,130,246,0.4);
+  background: linear-gradient(180deg, rgba(10,22,45,0.98) 0%, rgba(7,15,28,0.92) 100%);
+  border-bottom: 1px solid rgba(59,130,246,0.3);
 }
 
 #data-completa {
-  font-size: 40px;
+  font-size: 50px;
   font-weight: 700;
   font-style: italic;
-  color: #f0f4ff;
+  color: #f0f6ff;
   letter-spacing: 2px;
-  text-shadow: 0 0 12px rgba(120,180,255,0.6);
+  text-shadow: 0 0 24px rgba(59,130,246,0.6);
 }
 
 /* ── REFRESH LOADER BAR ── */
@@ -104,7 +104,7 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 1;
-  background: #f0f2f8;
+  background: #040912;
   background-image:
     radial-gradient(ellipse 80% 50% at 20% -10%, rgba(0,200,83,0.15) 0%, transparent 60%),
     radial-gradient(ellipse 60% 40% at 85% 110%, rgba(255,109,0,0.13) 0%, transparent 55%);
@@ -128,8 +128,8 @@ html, body {
   -webkit-justify-content: space-between;
   justify-content: space-between;
   padding: 0 48px;
-  background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 100%);
-  border-top: 2px solid rgba(59,130,246,0.3);
+  background: linear-gradient(0deg, rgba(10,22,45,0.98) 0%, rgba(7,15,28,0.92) 100%);
+  border-top: 1px solid rgba(59,130,246,0.25);
 }
 
 /* Orologio */
@@ -155,19 +155,19 @@ html, body {
   align-items: center;
   -webkit-justify-content: center;
   justify-content: center;
-  font-size: 70px;
+  font-size: 88px;
   font-weight: 800;
-  color: #f0f4ff;
-  text-shadow: 0 0 12px rgba(120,180,255,0.6);
+  color: #f1f5f9;
+  text-shadow: 0 0 18px rgba(59,130,246,0.6);
   line-height: 1;
   -webkit-font-smoothing: antialiased;
 }
 
 .sep {
-  font-size: 66px;
+  font-size: 82px;
   font-weight: 800;
-  color: #2563eb;
-  text-shadow: 0 2px 8px rgba(37,99,235,0.3);
+  color: #3b82f6;
+  text-shadow: 0 0 18px rgba(59,130,246,0.8);
   padding: 0 4px;
   line-height: 1;
   -webkit-animation: blink 1s step-end infinite;
@@ -192,9 +192,9 @@ html, body {
 }
 
 .digit-sec .d {
-  font-size: 34px;
+  font-size: 42px;
   font-weight: 700;
-  color: #a0c4ff;
+  color: #64748b;
   width: 24px;
   text-align: center;
 }
@@ -221,8 +221,8 @@ html, body {
 
 #refresh-status {
   margin-top: 6px;
-  font-size: 15px;
-  color: #a0c4ff;
+  font-size: 19px;
+  color: #475569;
   display: -webkit-flex;
   display: flex;
   -webkit-align-items: center;
@@ -234,7 +234,7 @@ html, body {
 
 #refresh-icon {
   display: inline-block;
-  font-size: 17px;
+  font-size: 21px;
   color: #22c55e;
 }
 #refresh-icon.spinning {
@@ -262,21 +262,21 @@ html, body {
 }
 
 #next-label {
-  font-size: 15px;
-  color: #a0c4ff;
+  font-size: 19px;
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
 
 #next-time {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 700;
-  color: #a0c4ff;
+  color: #94a3b8;
   margin-top: 3px;
 }
 
 #countdown {
-  font-size: 15px;
+  font-size: 19px;
   color: #334155;
   margin-top: 2px;
 }
@@ -294,10 +294,10 @@ html, body {
   --amber:      #ff8f00;
   --blue:       #1565c0;
   --purple:     #6a1b9a;
-  --surface:    rgba(255,255,255,0.85);
-  --border:     rgba(0,0,0,0.13);
-  --text:       #0f172a;
-  --muted:      rgba(0,0,0,0.45);
+  --surface:    rgba(255,255,255,0.08);
+  --border:     rgba(255,255,255,0.18);
+  --text:       #ffffff;
+  --muted:      rgba(255,255,255,0.55);
   --radius:     18px;
 }
 
@@ -308,7 +308,7 @@ html, body {
   animation: fadeDown .5s ease both;
 }
 .turni-header h1 {
-  font-size: clamp(26px, 3vw, 34px);
+  font-size: clamp(32px, 3vw, 42px);
   font-weight: 800;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -326,7 +326,7 @@ html, body {
   border: 1px solid var(--border);
   border-radius: 50px;
   padding: 6px 18px;
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 500;
   color: rgba(255,255,255,0.75);
   letter-spacing: .5px;
@@ -350,13 +350,13 @@ html, body {
 
 /* ── CARD ── */
 .card {
-  background: #ffffff;
-  border: 1.5px solid rgba(0,0,0,0.10);
+  background: var(--surface);
+  border: 1.5px solid rgba(255,255,255,0.20);
   border-radius: var(--radius);
   backdrop-filter: blur(16px);
   overflow: hidden;
   animation: fadeUp .5s ease both;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.5);
 }
 .card:nth-child(2) { animation-delay: .07s; }
 .card:nth-child(3) { animation-delay: .14s; }
@@ -367,54 +367,54 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 12px 18px;
-  font-size: 28px;
+  font-size: 35px;
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
 }
 .card-hdr.green {
-  background: linear-gradient(135deg, rgba(0,180,83,.20), rgba(0,120,47,.12));
-  border-bottom: 2px solid rgba(0,160,60,.40);
-  color: #065f46;
-  text-shadow: none;
+  background: linear-gradient(135deg, rgba(0,200,83,.35), rgba(0,150,47,.22));
+  border-bottom: 2px solid rgba(0,200,83,.55);
+  color: #a7ffcc;
+  text-shadow: 0 0 18px rgba(0,230,118,0.5);
 }
 .card-hdr.orange {
-  background: linear-gradient(135deg, rgba(255,109,0,.20), rgba(196,62,0,.12));
-  border-bottom: 2px solid rgba(220,80,0,.40);
-  color: #7c2d12;
-  text-shadow: none;
+  background: linear-gradient(135deg, rgba(255,109,0,.35), rgba(196,62,0,.22));
+  border-bottom: 2px solid rgba(255,109,0,.55);
+  color: #ffd0a8;
+  text-shadow: 0 0 18px rgba(255,130,0,0.5);
 }
 .card-hdr.blue {
-  background: linear-gradient(135deg, rgba(21,101,192,.18), rgba(13,71,161,.10));
-  border-bottom: 2px solid rgba(37,99,235,.40);
-  color: #1e3a8a;
-  font-size: 19px;
-  text-shadow: none;
+  background: linear-gradient(135deg, rgba(21,101,192,.35), rgba(13,71,161,.22));
+  border-bottom: 2px solid rgba(59,130,246,.55);
+  color: #a8c8ff;
+  font-size: 24px;
+  text-shadow: 0 0 18px rgba(59,130,246,0.5);
 }
 
 /* ── SECTION DIVIDER ── */
 .section-label {
-  font-size: 23px;
+  font-size: 29px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(0,0,0,0.50);
+  color: rgba(255,255,255,0.60);
   padding: 8px 18px 5px;
-  border-top: 1px solid rgba(0,0,0,0.10);
+  border-top: 1px solid rgba(255,255,255,0.20);
 }
 .section-label:first-of-type { border-top: none; }
 
 /* ── ECG CHIP ── */
 .ecg-label {
   display: inline-block;
-  font-size: 20px;
+  font-size: 25px;
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  background: rgba(0,180,83,.12);
-  color: #065f46;
-  border: 1px solid rgba(0,180,83,.35);
-  text-shadow: none;
+  background: rgba(105,240,174,.20);
+  color: #a7ffcc;
+  border: 1px solid rgba(105,240,174,.50);
+  text-shadow: 0 0 12px rgba(0,230,118,0.4);
   border-radius: 20px;
   padding: 3px 12px;
 }
@@ -422,7 +422,7 @@ html, body {
 /* ── ECG BADGE IN TABELLA ── */
 .ecg-badge-chip {
   display: inline-block;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 1.2px;
   text-transform: uppercase;
@@ -447,16 +447,16 @@ html, body {
   gap: 8px;
 }
 .doc-name {
-  font-size: 34px;
+  font-size: 42px;
   font-weight: 800;
   letter-spacing: .8px;
   text-transform: uppercase;
   text-align: center;
   line-height: 1.65;
-  text-shadow: none;
+  text-shadow: 0 0 20px rgba(255,255,255,0.35);
 }
 .doc-empty {
-  font-size: 15px;
+  font-size: 19px;
   color: var(--muted);
   font-style: italic;
 }
@@ -474,24 +474,24 @@ html, body {
 }
 .esame-hdr {
   padding: 10px 16px;
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
 }
-.esame-hdr.pink    { background: rgba(233,30,99,.12);  color: #9d174d; border-bottom: 2px solid rgba(233,30,99,.30); text-shadow: none; }
-.esame-hdr.amber   { background: rgba(255,143,0,.12);  color: #78350f; border-bottom: 2px solid rgba(255,143,0,.30); text-shadow: none; }
-.esame-hdr.sky     { background: rgba(21,101,192,.12); color: #1e3a8a; border-bottom: 2px solid rgba(21,101,192,.30); text-shadow: none; }
-.esame-hdr.violet  { background: rgba(106,27,154,.12); color: #4c1d95; border-bottom: 2px solid rgba(106,27,154,.30); text-shadow: none; }
+.esame-hdr.pink    { background: rgba(233,30,99,.22);  color: #ffa8c8; border-bottom: 2px solid rgba(233,30,99,.45); text-shadow: 0 0 14px rgba(233,30,99,0.5); }
+.esame-hdr.amber   { background: rgba(255,143,0,.20);  color: #ffe0a0; border-bottom: 2px solid rgba(255,143,0,.45); text-shadow: 0 0 14px rgba(255,143,0,0.5); }
+.esame-hdr.sky     { background: rgba(21,101,192,.22); color: #b0d8ff; border-bottom: 2px solid rgba(21,101,192,.45); text-shadow: 0 0 14px rgba(59,130,246,0.5); }
+.esame-hdr.violet  { background: rgba(106,27,154,.28); color: #e0b0f0; border-bottom: 2px solid rgba(106,27,154,.5); text-shadow: 0 0 14px rgba(150,50,220,0.5); }
 
 .esame-body {
   padding: 8px 12px 8px;
-  font-size: 28px;
+  font-size: 35px;
   font-weight: 800;
   letter-spacing: .5px;
   text-transform: uppercase;
   line-height: 1.55;
-  text-shadow: none;
+  text-shadow: 0 0 14px rgba(255,255,255,0.2);
   /* nomi a cascata su 2 colonne */
   -webkit-columns: 3;
   columns: 3;
@@ -504,7 +504,7 @@ html, body {
   -webkit-column-break-inside: avoid;
   break-inside: avoid;
 }
-.esame-empty { color: var(--muted); font-style: italic; font-weight: 400; font-size: 15px; }
+.esame-empty { color: var(--muted); font-style: italic; font-weight: 400; font-size: 19px; }
 
 /* ── ECG STATUS DOT ── */
 .ecg-status-dot {
@@ -537,8 +537,8 @@ html, body {
   animation: fadeUp .5s .21s ease both;
 }
 .ecg-table-wrap {
-  background: #ffffff;
-  border: 1px solid rgba(0,0,0,0.10);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-top: none;
   border-radius: 0 0 var(--radius) var(--radius);
   backdrop-filter: blur(16px);
@@ -549,10 +549,10 @@ html, body {
   grid-template-columns: 1fr 2px 1fr; /* default 2 col, override JS */
 }
 .ecg-col-divider {
-  background: rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.20);
 }
 .ecg-col-label {
-  font-size: 23px;
+  font-size: 29px;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -560,8 +560,8 @@ html, body {
   color: var(--muted);
   border-bottom: 1px solid var(--border);
 }
-.ecg-col-label.m { color: #065f46; text-shadow: none; }
-.ecg-col-label.p { color: #7c2d12; text-shadow: none; }
+.ecg-col-label.m { color: #a7ffcc; text-shadow: 0 0 12px rgba(0,230,118,0.5); }
+.ecg-col-label.p { color: #ffd0a8; text-shadow: 0 0 12px rgba(255,130,0,0.5); }
 .ecg-row {
   display: flex;
   align-items: center;
@@ -576,27 +576,26 @@ html, body {
 .ecg-row:last-child { border-bottom: none; }
 .ecg-row:hover { background: rgba(255,255,255,0.04); }
 .ecg-row .ecg-doctor {
-  font-size: 28px;
+  font-size: 35px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .5px;
-  text-shadow: none;
-  color: #0f172a;
+  text-shadow: 0 0 16px rgba(255,255,255,0.3);
 }
 .ecg-row .ecg-time {
-  font-size: 27px;
+  font-size: 34px;
   font-weight: 600;
-  color: rgba(0,0,0,.65);
+  color: rgba(255,255,255,.80);
   font-variant-numeric: tabular-nums;
   padding: 0 14px;
 }
 .ecg-row .ecg-max {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 700;
-  background: rgba(0,0,0,.08);
+  background: rgba(255,255,255,.14);
   border-radius: 6px;
   padding: 3px 10px;
-  color: rgba(0,0,0,.75);
+  color: rgba(255,255,255,.88);
 }
 .ecg-doc-wrap {
   flex: 1;
@@ -608,11 +607,11 @@ html, body {
 .ecg-badge-chip {
   display: inline-flex;
   align-items: center;
-  background: rgba(220,30,30,.10);
-  color: #991b1b;
-  border: 1px solid rgba(220,30,30,.30);
+  background: rgba(255,80,80,.18);
+  color: #ff8080;
+  border: 1px solid rgba(255,80,80,.35);
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: .4px;
   padding: 2px 7px;
@@ -624,7 +623,7 @@ html, body {
   text-align: center;
   color: var(--muted);
   font-style: italic;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 /* ── ANIMATIONS ── */
@@ -673,7 +672,6 @@ html, body {
           <span class="ecg-label">Solo ECG</span>
         </div>
         <div class="doc-section" id="wrap-ecg-mattina">
-          <div class="doc-name" id="ecg-mattina"></div>
         </div>
       </div>
 
@@ -688,7 +686,6 @@ html, body {
           <span class="ecg-label">Solo ECG</span>
         </div>
         <div class="doc-section" id="wrap-ecg-pomeriggio">
-          <div class="doc-name" id="ecg-pomeriggio"></div>
         </div>
       </div>
 
@@ -714,15 +711,7 @@ html, body {
 
     </div><!-- /main-grid -->
 
-    <!-- ── ECG ORARI ── -->
-    <div class="ecg-section">
-      <div class="card-hdr blue" style="background:rgba(21,101,192,.18);border:1px solid rgba(21,101,192,.3);border-bottom:none;border-radius:18px 18px 0 0;">
-        Orario Cardiologi Solo ECG
-      </div>
-      <div class="ecg-table-wrap">
-        <div class="ecg-cols" id="ecg-cols"></div>
-      </div>
-    </div>
+
 
   </div><!-- /turni-container -->
 </div><!-- /viewer-wrap -->
@@ -1185,8 +1174,7 @@ function processAndRender(data) {
   // Turno completo & Solo ECG
   renderDocList('tc-mattina', tcMattina);
   renderDocList('tc-pomeriggio', tcPomeriggio);
-  renderDocList('ecg-mattina', ecgMattina);
-  renderDocList('ecg-pomeriggio', ecgPomeriggio);
+  // Solo ECG con orario renderizzato direttamente nella card
 
   // Holter Cardiaco: turni holter prima, poi consuntivo HC con disponibilità
   var holterCLines = [];
@@ -1194,11 +1182,11 @@ function processAndRender(data) {
     holterCLines.push('<span class="n" style="color:#f48fb1;">' + esc(holterDocs[i].name) + '</span>');
   }
   if (holterDocs.length > 0 && hcDocs.length > 0) {
-    holterCLines.push('<span class="n" style="font-size:9px;opacity:0.4;letter-spacing:2px;column-span:all;">── CONSUNTIVO ──</span>');
+    holterCLines.push('<span class="n" style="font-size: 11px;opacity:0.4;letter-spacing:2px;column-span:all;">── CONSUNTIVO ──</span>');
   }
   for (var i = 0; i < hcDocs.length; i++) {
     var t = esc(hcDocs[i].name);
-    if (hcDocs[i].max) t += ' <span style="font-size:17px;font-weight:600;opacity:.65;color:#374151;">(' + esc(String(hcDocs[i].max)) + ')</span>';
+    if (hcDocs[i].max) t += ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hcDocs[i].max)) + ')</span>';
     holterCLines.push('<span class="n">'+t+'</span>');
   }
   document.getElementById('esame-holterc').innerHTML = holterCLines.length
@@ -1209,7 +1197,7 @@ function processAndRender(data) {
   var hpLines = [];
   for (var i = 0; i < hpDocs.length; i++) {
     var t = esc(hpDocs[i].name);
-    if (hpDocs[i].max) t += ' <span style="font-size:17px;font-weight:600;opacity:.65;color:#374151;">(' + esc(String(hpDocs[i].max)) + ')</span>';
+    if (hpDocs[i].max) t += ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hpDocs[i].max)) + ')</span>';
     hpLines.push('<span class="n">'+t+'</span>');
   }
   document.getElementById('esame-holterp').innerHTML = hpLines.length
@@ -1234,29 +1222,25 @@ function processAndRender(data) {
     ? plsLines.join('')
     : '<span class="esame-empty">\u2014</span>';
 
-  // ECG Orari — prima cerca ecgTimes (Firestore holter_counts), poi fallback profilo cardiologo
+  // ECG Orari — costruisce righe separate per Mattina e Pomeriggio, poi le renderizza nelle card
   var ecgTimes = data.ecgTimes || {};
-  var allEcgRows = [];
+  var ecgMattinaRows = [];
+  var ecgPomeriggioRows = [];
   for (var i = 0; i < ecgMattina.length; i++) {
     var docKey = ecgMattina[i].key;
     var matched = matchCardiologo(docKey, cardiologists);
     var docData = weeks[docKey];
-    // 1) ecgTimes da holter_counts (orario editato dall'utente in situazione esami)
     var ecgStartKey = 'd' + dayIdx + '_s0_ecg_start_' + docKey;
     var ecgEndKey   = 'd' + dayIdx + '_s0_ecg_end_'   + docKey;
     var userStart = ecgTimes[ecgStartKey] || '';
     var userEnd   = ecgTimes[ecgEndKey]   || '';
-    // 2) Fallback: orario dal profilo cardiologo (Firestore cardiologists)
     var oraDa = '', oraA = '';
-    // Prova RTDB poi profilo Firestore (default)
     var orario = resolveOrario(docData, dayIdx, 'mattina');
     if (!orario && matched && matched.orario) { orario = parseOrario(matched.orario); }
     if (orario && orario.mattina) { oraDa = orario.mattina.start; oraA = orario.mattina.end; }
     else if (orario && orario.generic) { oraDa = orario.generic.start; oraA = orario.generic.end; }
-    // Sovrascrive solo i campi modificati dall'utente (se vuoti, mantiene il default)
     if (userStart) oraDa = userStart;
     if (userEnd)   oraA  = userEnd;
-    // Badge ECG — campi booleani ecg100 / ecg75 (Firestore + RTDB)
     var ecgBadge = '';
     if (matched) {
       if (matched.ecg100 === true) ecgBadge = 'ECG 100';
@@ -1266,34 +1250,23 @@ function processAndRender(data) {
       if (docData.ecg100 === true) ecgBadge = 'ECG 100';
       else if (docData.ecg75 === true) ecgBadge = 'ECG 75';
     }
-    allEcgRows.push({
-      medico: ecgMattina[i].name,
-      turno: 'mattina',
-      oraDa: oraDa,
-      oraA:  oraA,
-      ecgBadge: ecgBadge
-    });
+    ecgMattinaRows.push({ medico: ecgMattina[i].name, oraDa: oraDa, oraA: oraA, ecgBadge: ecgBadge });
   }
   for (var i = 0; i < ecgPomeriggio.length; i++) {
     var docKey = ecgPomeriggio[i].key;
     var matched = matchCardiologo(docKey, cardiologists);
     var docData = weeks[docKey];
-    // 1) ecgTimes da holter_counts (orario editato dall'utente in situazione esami)
     var ecgStartKeyP = 'd' + dayIdx + '_s1_ecg_start_' + docKey;
     var ecgEndKeyP   = 'd' + dayIdx + '_s1_ecg_end_'   + docKey;
     var userStartP = ecgTimes[ecgStartKeyP] || '';
     var userEndP   = ecgTimes[ecgEndKeyP]   || '';
-    // 2) Fallback: orario dal profilo cardiologo (Firestore cardiologists)
     var oraDaP = '', oraAP = '';
-    // Prova RTDB poi profilo Firestore (default)
     var orario = resolveOrario(docData, dayIdx, 'pomeriggio');
     if (!orario && matched && matched.orario) { orario = parseOrario(matched.orario); }
     if (orario && orario.pomeriggio) { oraDaP = orario.pomeriggio.start; oraAP = orario.pomeriggio.end; }
     else if (orario && orario.generic) { oraDaP = orario.generic.start; oraAP = orario.generic.end; }
-    // Sovrascrive solo i campi modificati dall'utente (se vuoti, mantiene il default)
     if (userStartP) oraDaP = userStartP;
     if (userEndP)   oraAP  = userEndP;
-    // Badge ECG — campi booleani ecg100 / ecg75 (Firestore + RTDB)
     var ecgBadge = '';
     if (matched) {
       if (matched.ecg100 === true) ecgBadge = 'ECG 100';
@@ -1303,15 +1276,10 @@ function processAndRender(data) {
       if (docData.ecg100 === true) ecgBadge = 'ECG 100';
       else if (docData.ecg75 === true) ecgBadge = 'ECG 75';
     }
-    allEcgRows.push({
-      medico: ecgPomeriggio[i].name,
-      turno: 'pomeriggio',
-      oraDa: oraDaP,
-      oraA:  oraAP,
-      ecgBadge: ecgBadge
-    });
+    ecgPomeriggioRows.push({ medico: ecgPomeriggio[i].name, oraDa: oraDaP, oraA: oraAP, ecgBadge: ecgBadge });
   }
-  renderEcg(allEcgRows);
+  renderEcgInCard('wrap-ecg-mattina', ecgMattinaRows);
+  renderEcgInCard('wrap-ecg-pomeriggio', ecgPomeriggioRows);
   updateEcgDots();
 }
 
@@ -1353,6 +1321,32 @@ function renderDocList(elId, docs) {
     return;
   }
   el.innerHTML = docs.map(function(d) { return esc(d.name); }).join('<br>');
+}
+
+function renderEcgInCard(wrapId, rows) {
+  var wrap = document.getElementById(wrapId);
+  if (!rows || !rows.length) {
+    wrap.innerHTML = '<span class="doc-empty">\u2014</span>';
+    return;
+  }
+  wrap.style.alignItems = 'stretch';
+  wrap.style.padding = '0';
+  wrap.style.gap = '0';
+  var html = '';
+  rows.forEach(function(r) {
+    var ora = (r.oraDa && r.oraA)
+      ? esc(padTime(r.oraDa)) + ' \u2013 ' + esc(padTime(r.oraA))
+      : esc(padTime(r.oraDa) || '');
+    html += '<div class="ecg-row">';
+    html += '<span class="ecg-status-dot gray" data-start="' + esc(r.oraDa || '') + '" data-end="' + esc(r.oraA || '') + '"></span>';
+    html += '<div class="ecg-doc-wrap">';
+    html += '<span class="ecg-doctor">' + esc(r.medico || '') + '</span>';
+    if (r.ecgBadge) html += '<span class="ecg-badge-chip">' + esc(r.ecgBadge) + '</span>';
+    html += '</div>';
+    if (ora) html += '<span class="ecg-time">' + ora + '</span>';
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
 }
 
 function renderEcg(rows) {
