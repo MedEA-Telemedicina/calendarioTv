@@ -127,6 +127,8 @@ html, body {
   align-items: center;
   -webkit-justify-content: space-between;
   justify-content: space-between;
+  -webkit-align-items: center;
+  align-items: center;
   padding: 0 48px;
   background: linear-gradient(0deg, rgba(10,22,45,0.98) 0%, rgba(7,15,28,0.92) 100%);
   border-top: 1px solid rgba(59,130,246,0.25);
@@ -201,6 +203,10 @@ html, body {
 
 /* Centro footer */
 #footer-center {
+  position: absolute;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
   text-align: center;
   display: -webkit-flex;
   display: flex;
@@ -250,36 +256,7 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
-/* Destra footer */
-#footer-right {
-  text-align: right;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -webkit-justify-content: center;
-  justify-content: center;
-}
 
-#next-label {
-  font-size: 19px;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-#next-time {
-  font-size: 32px;
-  font-weight: 700;
-  color: #94a3b8;
-  margin-top: 3px;
-}
-
-#countdown {
-  font-size: 19px;
-  color: #334155;
-  margin-top: 2px;
-}
 
 /* ═══════════════════════════════════════
    TURNI MEDICI — CSS
@@ -759,17 +736,13 @@ html, body {
     </div>
   </div>
 
-  <div id="footer-right">
-    <div id="next-label">Prossimo aggiornamento</div>
-    <div id="next-time">—</div>
-    <div id="countdown"></div>
-  </div>
+
 
 </div>
 
 <script>
 
-var REFRESH_INTERVAL_MS = 30000; // 30 secondi — aggiornamento continuo TV
+var REFRESH_INTERVAL_MS = 5000; // 5 secondi — aggiornamento live
 
 function pad2(n) { return n < 10 ? '0' + n : '' + n; }
 function padTime(t) {
@@ -1036,10 +1009,11 @@ function fetchAllData(callback) {
     if (pending === 0) callback(results);
   }
 
-  // Firestore: holter_counts (contiene ecgTimes editati dall'utente)
+  // Firestore: holter_counts (contiene ecgTimes editati dall'utente + conteggi consuntivo)
   var HOLTER_COUNTS_URL = 'https://firestore.googleapis.com/v1/projects/situazione-medici/databases/(default)/documents/holter_counts/' + encodeURIComponent(weekKey);
   fetchJSON(HOLTER_COUNTS_URL, function(err, data) {
     if (err || !data || !data.fields) { done('ecgTimes', {}); return; }
+    // ecgTimes
     var ecgTimesField = data.fields.ecgTimes;
     if (ecgTimesField && ecgTimesField.mapValue && ecgTimesField.mapValue.fields) {
       var raw = ecgTimesField.mapValue.fields;
@@ -1047,10 +1021,81 @@ function fetchAllData(callback) {
       for (var k in raw) {
         if (raw.hasOwnProperty(k)) parsed[k] = raw[k].stringValue || '';
       }
-      done('ecgTimes', parsed);
-    } else {
-      done('ecgTimes', {});
+      results.ecgTimesRaw = parsed;
     }
+    // HC counts per medico (chiave: "d{dayIdx}_hc_{docKey}")
+    var hcMap = {};
+    var hcMapExists = {};
+    if (data.fields.hc && data.fields.hc.mapValue && data.fields.hc.mapValue.fields) {
+      var hcRaw = data.fields.hc.mapValue.fields;
+      for (var k in hcRaw) {
+        if (hcRaw.hasOwnProperty(k)) {
+          var hcVal = hcRaw[k].integerValue || hcRaw[k].doubleValue || hcRaw[k].stringValue || '';
+          var hcNum = parseInt(hcVal);
+          if (!isNaN(hcNum) && hcVal !== '') {
+            hcMap[k] = hcNum;
+            hcMapExists[k] = true;
+          }
+        }
+      }
+    }
+    results.hcCountsMap = hcMap;
+    results.hcCountsExists = hcMapExists;
+    // HP counts per medico (chiave: "d{dayIdx}_hp_{docKey}")
+    var hpMap = {};
+    var hpMapExists = {};
+    if (data.fields.hp && data.fields.hp.mapValue && data.fields.hp.mapValue.fields) {
+      var hpRaw = data.fields.hp.mapValue.fields;
+      for (var k in hpRaw) {
+        if (hpRaw.hasOwnProperty(k)) {
+          var hpVal = hpRaw[k].integerValue || hpRaw[k].doubleValue || hpRaw[k].stringValue || '';
+          var hpNum = parseInt(hpVal);
+          if (!isNaN(hpNum) && hpVal !== '') {
+            hpMap[k] = hpNum;
+            hpMapExists[k] = true;
+          }
+        }
+      }
+    }
+    results.hpCountsMap = hpMap;
+    results.hpCountsExists = hpMapExists;
+    // Spiro counts per medico (chiave: "d{dayIdx}_sp_{docKey}")
+    var spMap = {};
+    var spMapExists = {};
+    if (data.fields.spiro && data.fields.spiro.mapValue && data.fields.spiro.mapValue.fields) {
+      var spRaw = data.fields.spiro.mapValue.fields;
+      for (var k in spRaw) {
+        if (spRaw.hasOwnProperty(k)) {
+          var spVal = spRaw[k].integerValue || spRaw[k].doubleValue || spRaw[k].stringValue || '';
+          var spNum = parseInt(spVal);
+          if (!isNaN(spNum) && spVal !== '' && spNum > 0) {
+            spMap[k] = spNum;
+            spMapExists[k] = true;
+          }
+        }
+      }
+    }
+    results.spiroCountsMap = spMap;
+    results.spiroCountsExists = spMapExists;
+    // PLS counts per medico (chiave: "d{dayIdx}_pls_{docKey}")
+    var plMap = {};
+    var plMapExists = {};
+    if (data.fields.pls && data.fields.pls.mapValue && data.fields.pls.mapValue.fields) {
+      var plRaw = data.fields.pls.mapValue.fields;
+      for (var k in plRaw) {
+        if (plRaw.hasOwnProperty(k)) {
+          var plVal = plRaw[k].integerValue || plRaw[k].doubleValue || plRaw[k].stringValue || '';
+          var plNum = parseInt(plVal);
+          if (!isNaN(plNum) && plVal !== '' && plNum > 0) {
+            plMap[k] = plNum;
+            plMapExists[k] = true;
+          }
+        }
+      }
+    }
+    results.plsCountsMap = plMap;
+    results.plsCountsExists = plMapExists;
+    done('ecgTimes', results.ecgTimesRaw || {});
   });
 
   // Firestore
@@ -1195,14 +1240,37 @@ function processAndRender(data) {
   // Holter Cardiaco: turni holter prima, poi consuntivo HC con disponibilità
   var holterCLines = [];
   for (var i = 0; i < holterDocs.length; i++) {
-    holterCLines.push('<span class="n" style="color:#f48fb1;">' + esc(holterDocs[i].name) + '</span>');
+    var htDoc = holterDocs[i];
+    var htHcKey = 'd' + dayIdx + '_hc_' + htDoc.key;
+    var htHpKey = 'd' + dayIdx + '_hp_' + htDoc.key;
+    var htHcDone = !!(data.hcCountsExists || {})[htHcKey] && ((data.hcCountsMap || {})[htHcKey] || 0) >= 10;
+    var htHpDone = !!(data.hpCountsExists || {})[htHpKey] && ((data.hpCountsMap || {})[htHpKey] || 0) >= 10;
+    var htAllDone = htHcDone && htHpDone;
+    var htColor = htAllDone ? '#4ade80' : '#f48fb1';
+    holterCLines.push('<span class="n" style="color:' + htColor + ';">' + esc(htDoc.name) + '</span>');
   }
   if (holterDocs.length > 0 && hcDocs.length > 0) {
     holterCLines.push('<span class="n" style="font-size: 11px;opacity:0.4;letter-spacing:2px;column-span:all;">── CONSUNTIVO ──</span>');
   }
   for (var i = 0; i < hcDocs.length; i++) {
-    var t = esc(hcDocs[i].name);
-    if (hcDocs[i].max) t += ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hcDocs[i].max)) + ')</span>';
+    var hcDoc = hcDocs[i];
+    var hcCountKey = 'd' + dayIdx + '_hc_' + hcDoc.key;
+    var hcMax = parseInt(hcDoc.max) || 0;
+    var hcHasCount = !!(data.hcCountsExists || {})[hcCountKey];
+    var hcCountVal = hcHasCount ? ((data.hcCountsMap || {})[hcCountKey] || 0) : 0;
+    var t;
+    if (hcHasCount && hcMax > 0 && hcCountVal >= hcMax) {
+      // Completo: nome verde + disponibilità max tra parentesi
+      t = '<span style="color:#4ade80;">' + esc(hcDoc.name) + ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hcMax)) + ')</span></span>';
+    } else if (hcHasCount && hcCountVal > 0 && hcMax > 0) {
+      // Parziale: nome + (N su MAX)
+      t = esc(hcDoc.name) + ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + hcCountVal + ' su ' + esc(String(hcMax)) + ')</span>';
+    } else if (hcMax > 0) {
+      // Nessun conteggio: solo MAX
+      t = esc(hcDoc.name) + ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hcMax)) + ')</span>';
+    } else {
+      t = esc(hcDoc.name);
+    }
     holterCLines.push('<span class="n">'+t+'</span>');
   }
   document.getElementById('esame-holterc').innerHTML = holterCLines.length
@@ -1212,8 +1280,22 @@ function processAndRender(data) {
   // Holter Pressorio: consuntivo HP
   var hpLines = [];
   for (var i = 0; i < hpDocs.length; i++) {
-    var t = esc(hpDocs[i].name);
-    if (hpDocs[i].max) t += ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hpDocs[i].max)) + ')</span>';
+    var hpDoc = hpDocs[i];
+    var hpCountKey = 'd' + dayIdx + '_hp_' + hpDoc.key;
+    var hpMax = parseInt(hpDoc.max) || 0;
+    var hpHasCount = !!(data.hpCountsExists || {})[hpCountKey];
+    var hpCountVal = hpHasCount ? ((data.hpCountsMap || {})[hpCountKey] || 0) : 0;
+    var t;
+    if (hpHasCount && hpMax > 0 && hpCountVal >= hpMax) {
+      // Completo: nome verde + disponibilità max tra parentesi
+      t = '<span style="color:#4ade80;">' + esc(hpDoc.name) + ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hpMax)) + ')</span></span>';
+    } else if (hpHasCount && hpCountVal > 0 && hpMax > 0) {
+      t = esc(hpDoc.name) + ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + hpCountVal + ' su ' + esc(String(hpMax)) + ')</span>';
+    } else if (hpMax > 0) {
+      t = esc(hpDoc.name) + ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(' + esc(String(hpMax)) + ')</span>';
+    } else {
+      t = esc(hpDoc.name);
+    }
     hpLines.push('<span class="n">'+t+'</span>');
   }
   document.getElementById('esame-holterp').innerHTML = hpLines.length
@@ -1223,7 +1305,14 @@ function processAndRender(data) {
   // Spirometria
   var spiroLines = [];
   for (var i = 0; i < spiroDocs.length; i++) {
-    spiroLines.push('<span class="n">'+esc(spiroDocs[i].name)+'</span>');
+    var spDoc = spiroDocs[i];
+    var spKey = 'd' + dayIdx + '_sp_' + spDoc.key;
+    var spCount = (data.spiroCountsExists || {})[spKey] ? ((data.spiroCountsMap || {})[spKey] || 0) : 0;
+    var spLabel = esc(spDoc.name);
+    if (spCount > 0) {
+      spLabel += ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(agg. ' + spCount + ')</span>';
+    }
+    spiroLines.push('<span class="n">' + spLabel + '</span>');
   }
   document.getElementById('esame-spiro').innerHTML = spiroLines.length
     ? spiroLines.join('')
@@ -1232,7 +1321,14 @@ function processAndRender(data) {
   // Polisonnografia
   var plsLines = [];
   for (var i = 0; i < plsDocs.length; i++) {
-    plsLines.push('<span class="n">'+esc(plsDocs[i].name)+'</span>');
+    var plDoc = plsDocs[i];
+    var plKey = 'd' + dayIdx + '_pls_' + plDoc.key;
+    var plCount = (data.plsCountsExists || {})[plKey] ? ((data.plsCountsMap || {})[plKey] || 0) : 0;
+    var plLabel = esc(plDoc.name);
+    if (plCount > 0) {
+      plLabel += ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(agg. ' + plCount + ')</span>';
+    }
+    plsLines.push('<span class="n">' + plLabel + '</span>');
   }
   document.getElementById('esame-polison').innerHTML = plsLines.length
     ? plsLines.join('')
@@ -1499,7 +1595,7 @@ function reloadTurni() {
     if (!img.src || img.src.length < 100 || img.naturalWidth === 0) {
       img.src = logoSrc;
     }
-  }, 30000);
+  }, 5000);
 })();
 
 </script>
