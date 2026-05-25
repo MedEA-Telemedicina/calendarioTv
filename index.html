@@ -842,7 +842,9 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 var RTDB_BASE         = 'https://gestione-turni-345c2-default-rtdb.europe-west1.firebasedatabase.app';
 
 // Firebase anonymous auth per accedere al RTDB (gestione-turni)
-var _fbAuthTokenPromise = (function() {
+// _getFbToken() restituisce sempre un token fresco (il SDK Firebase lo rinnova automaticamente)
+var _fbAuth = null;
+(function() {
   try {
     var _fbCfg = {
       apiKey:            'AIzaSyBkwjLCFjun0RpVkEmwnaRJln-FV7Z7NQE',
@@ -850,26 +852,30 @@ var _fbAuthTokenPromise = (function() {
       databaseURL:       'https://gestione-turni-345c2-default-rtdb.europe-west1.firebasedatabase.app',
       projectId:         'gestione-turni-345c2'
     };
-    var _fbApp  = firebase.apps && firebase.apps.length ? firebase.app() : firebase.initializeApp(_fbCfg);
-    var _fbAuth = firebase.auth(_fbApp);
-    return new Promise(function(resolve) {
-      var _unsub = _fbAuth.onAuthStateChanged(function(user) {
-        _unsub();
-        if (user) {
-          user.getIdToken(true).then(resolve).catch(function() { resolve(null); });
-        } else {
-          _fbAuth.signInAnonymously()
-            .then(function(cred) { return cred.user.getIdToken(); })
-            .then(resolve)
-            .catch(function(e) { console.warn('Firebase auth error:', e); resolve(null); });
-        }
-      });
+    var _fbApp = firebase.apps && firebase.apps.length ? firebase.app() : firebase.initializeApp(_fbCfg);
+    _fbAuth = firebase.auth(_fbApp);
+    // Esegui login anonimo una volta sola; il SDK mantiene la sessione e rinnova il token
+    _fbAuth.onAuthStateChanged(function(user) {
+      if (!user) {
+        _fbAuth.signInAnonymously().catch(function(e) { console.warn('Firebase signIn error:', e); });
+      }
     });
   } catch(e) {
     console.warn('Firebase init error:', e);
-    return Promise.resolve(null);
   }
 })();
+
+function _getFbToken() {
+  try {
+    var user = _fbAuth && _fbAuth.currentUser;
+    if (user) {
+      return user.getIdToken(); // il SDK rinnova automaticamente il token se scaduto
+    }
+  } catch(e) {}
+  return Promise.resolve(null);
+}
+// Alias per compatibilità con il codice esistente
+var _fbAuthTokenPromise = { then: function(cb) { return _getFbToken().then(cb); } };
 
 var _sbHeaders = {
   'apikey': SUPABASE_ANON_KEY,
@@ -1063,24 +1069,39 @@ function fetchAllData(callback) {
         } else {
           // Fallback Firebase RTDB
           console.log('[cardio_state] Nessun dato Supabase, fallback Firebase per:', pathName);
-          _fbAuthTokenPromise.then(function(token) {
+          _getFbToken().then(function(token) {
             var url = RTDB_BASE + '/cardio_state/' + pathName + '/' + encodeURIComponent(weekKey) + '.json';
             if (token) url += '?auth=' + encodeURIComponent(token);
             fetch(url)
               .then(function(r) { return r.json(); })
-              .then(function(data) { done(pathName, data || {}); })
+              .then(function(data) {
+                // Firebase restituisce {"error":"..."} in caso di token scaduto o permesso negato
+                if (data && data.error) {
+                  console.warn(pathName + ' Firebase auth error:', data.error);
+                  done(pathName, {});
+                } else {
+                  done(pathName, data || {});
+                }
+              })
               .catch(function(e) { console.warn(pathName + ' Firebase fetch error:', e); done(pathName, {}); });
           });
         }
       })
       .catch(function(e) {
         console.warn(pathName + ' Supabase error, fallback Firebase:', e);
-        _fbAuthTokenPromise.then(function(token) {
+        _getFbToken().then(function(token) {
           var url = RTDB_BASE + '/cardio_state/' + pathName + '/' + encodeURIComponent(weekKey) + '.json';
           if (token) url += '?auth=' + encodeURIComponent(token);
           fetch(url)
             .then(function(r) { return r.json(); })
-            .then(function(data) { done(pathName, data || {}); })
+            .then(function(data) {
+              if (data && data.error) {
+                console.warn(pathName + ' Firebase auth error (fallback):', data.error);
+                done(pathName, {});
+              } else {
+                done(pathName, data || {});
+              }
+            })
             .catch(function(e2) { console.warn(pathName + ' Firebase fetch error:', e2); done(pathName, {}); });
         });
       });
@@ -1554,6 +1575,20 @@ function reloadTurni() {
   startLoaderBar();
 
   fetchAllData(function(data) {
+    // Sicurezza: se i nuovi dati sono vuoti ma quelli vecchi erano validi, mantieni i vecchi
+    // Questo evita che errori temporanei (es. token Firebase scaduto) cancellino i medici
+    if (window._lastCalData) {
+      ['weeks','holterWeeks','hcWeeks','hpWeeks','spiroWeeks','plsWeeks'].forEach(function(k) {
+        var newVal = data[k];
+        var oldVal = window._lastCalData[k];
+        var newEmpty = !newVal || typeof newVal !== 'object' || Object.keys(newVal).length === 0;
+        var oldValid = oldVal && typeof oldVal === 'object' && Object.keys(oldVal).length > 0;
+        if (newEmpty && oldValid) {
+          console.warn('[reloadTurni] Dati vuoti per', k, '— mantengo dati precedenti');
+          data[k] = oldVal;
+        }
+      });
+    }
     window._lastCalData = data;
     processAndRender(data);
     reloading = false;
@@ -1648,7 +1683,17 @@ function reloadTurni() {
               console.log('[Realtime] cardio_state aggiornato:', pathName, payload.eventType);
               if (!window._lastCalData) return;
               if (payload.new && payload.new.data !== undefined) {
-                window._lastCalData[pathName] = payload.new.data;
+                var newData = payload.new.data;
+                // Non sovrascrivere dati validi con un oggetto vuoto/null
+                var newEmpty = !newData || typeof newData !== 'object' || Object.keys(newData).length === 0;
+                var oldValid = window._lastCalData[pathName] &&
+                               typeof window._lastCalData[pathName] === 'object' &&
+                               Object.keys(window._lastCalData[pathName]).length > 0;
+                if (newEmpty && oldValid) {
+                  console.warn('[Realtime] Dati vuoti per', pathName, '— aggiornamento ignorato');
+                  return;
+                }
+                window._lastCalData[pathName] = newData;
                 processAndRender(window._lastCalData);
               }
             }
