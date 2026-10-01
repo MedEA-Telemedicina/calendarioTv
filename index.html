@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -501,7 +500,7 @@ html, body {
 
 /* ── ECG STATUS DOT ── */
 .ecg-status-dot {
-  width: 13px; height: 13px;
+  width: 16px; height: 16px;
   border-radius: 50%;
   flex-shrink: 0;
   margin-right: 10px;
@@ -558,7 +557,7 @@ html, body {
 .ecg-row {
   display: flex;
   align-items: center;
-  padding: 9px 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border);
   transition: background .15s;
   gap: 0;
@@ -569,14 +568,14 @@ html, body {
 .ecg-row:last-child { border-bottom: none; }
 .ecg-row:hover { background: rgba(255,255,255,0.04); }
 .ecg-row .ecg-doctor {
-  font-size: 46px;
+  font-size: 54px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .5px;
   text-shadow: 0 0 16px rgba(255,255,255,0.3);
 }
 .ecg-row .ecg-time {
-  font-size: 34px;
+  font-size: 40px;
   font-weight: 600;
   color: rgba(255,255,255,.80);
   font-variant-numeric: tabular-nums;
@@ -604,10 +603,10 @@ html, body {
   color: #ff8080;
   border: 1px solid rgba(255,80,80,.35);
   border-radius: 5px;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: .4px;
-  padding: 2px 7px;
+  padding: 2px 8px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -916,6 +915,18 @@ function getSlotData(slots, dayIdx) {
   return null;
 }
 
+// holterConfType: riconosce la conferma del turno holter.
+// 'std' = confermato (HC + HP), 'c16' = confermato holter da 16 (solo HC, max 16), null = non confermato
+function holterConfType(slot) {
+  if (!slot) return null;
+  var s = (typeof slot === 'string') ? slot
+        : (slot.stato || slot.status || slot.val || slot.value || slot.tipo || slot.type || '');
+  s = String(s).toLowerCase().replace(/\s+/g, '');
+  if (s === 'confermato') return 'std';
+  if (s.indexOf('16') !== -1 && (s.indexOf('conferm') !== -1 || s.charAt(0) === 'c')) return 'c16';
+  return null;
+}
+
 function parseOrario(val) {
   if (!val) return null;
   // Se è già un oggetto nel formato atteso {mattina, pomeriggio, generic}
@@ -1158,8 +1169,9 @@ function processAndRender(data) {
     var hd = holterWeeks[dk];
     if (!hd || hd.ferie) continue;
     var hSlot = getSlotData(hd.slots, dayIdx);
-    if (hSlot !== 'confermato') continue;
-    holterDocs.push({ name: dk.replace(/\u00B7/g, '.'), key: dk });
+    var hType = holterConfType(hSlot);
+    if (!hType) continue;
+    holterDocs.push({ name: dk.replace(/\u00B7/g, '.'), key: dk, c16: hType === 'c16' });
   }
   holterDocs.sort(function(a, b) { return a.name.localeCompare(b.name, 'it'); });
 
@@ -1232,9 +1244,10 @@ function processAndRender(data) {
     var htDoc = holterDocs[i];
     var htHcKey = 'd' + dayIdx + '_hc_' + htDoc.key;
     var htHpKey = 'd' + dayIdx + '_hp_' + htDoc.key;
-    var htHcDone = !!(data.hcCountsExists || {})[htHcKey] && ((data.hcCountsMap || {})[htHcKey] || 0) >= 10;
+    var htHcMin = htDoc.c16 ? 16 : 10;
+    var htHcDone = !!(data.hcCountsExists || {})[htHcKey] && ((data.hcCountsMap || {})[htHcKey] || 0) >= htHcMin;
     var htHpDone = !!(data.hpCountsExists || {})[htHpKey] && ((data.hpCountsMap || {})[htHpKey] || 0) >= 10;
-    var htAllDone = htHcDone && htHpDone;
+    var htAllDone = htDoc.c16 ? htHcDone : (htHcDone && htHpDone);
     var htColor = htAllDone ? '#4ade80' : '#f48fb1';
     holterCLines.push('<span class="n" style="color:' + htColor + ';">' + esc(htDoc.name) + '</span>');
   }
