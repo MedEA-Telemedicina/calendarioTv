@@ -617,6 +617,16 @@ html, body {
   white-space: nowrap;
   flex-shrink: 0;
 }
+.ecg-badge-chip.ecg-100 {
+  background: rgba(255,80,80,.18);
+  color: #ff8080;
+  border-color: rgba(255,80,80,.35);
+}
+.ecg-badge-chip.ecg-75 {
+  background: rgba(34,211,238,.16);
+  color: #67e8f9;
+  border-color: rgba(34,211,238,.4);
+}
 .ecg-empty {
   padding: 18px;
   text-align: center;
@@ -1439,9 +1449,28 @@ function processAndRender(data) {
     }
     ecgPomeriggioRows.push({ medico: ecgPomeriggio[i].name, oraDa: oraDaP, oraA: oraAP, ecgBadge: ecgBadge });
   }
-  renderEcgInCard('wrap-ecg-mattina', ecgMattinaRows);
-  renderEcgInCard('wrap-ecg-pomeriggio', ecgPomeriggioRows);
+  // Ordina per ora di inizio (senza orario in fondo), a parità ordine alfabetico
+  function sortEcgRows(rows) {
+    rows.sort(function(a, b) {
+      var ta = timeToMin(a.oraDa), tb = timeToMin(b.oraDa);
+      if (ta < 0) ta = 99999;
+      if (tb < 0) tb = 99999;
+      if (ta !== tb) return ta - tb;
+      return String(a.medico || '').localeCompare(String(b.medico || ''), 'it');
+    });
+    return rows;
+  }
+  renderEcgInCard('wrap-ecg-mattina', sortEcgRows(ecgMattinaRows));
+  renderEcgInCard('wrap-ecg-pomeriggio', sortEcgRows(ecgPomeriggioRows));
   updateEcgDots();
+}
+
+/* ── ECG BADGE CLASS ── */
+function ecgBadgeClass(label) {
+  var n = String(label || '').replace(/\D/g, '');
+  if (n === '100') return ' ecg-100';
+  if (n === '75')  return ' ecg-75';
+  return '';
 }
 
 /* ── ECG STATUS DOTS UPDATE ── */
@@ -1502,7 +1531,7 @@ function renderEcgInCard(wrapId, rows) {
     html += '<span class="ecg-status-dot gray" data-start="' + esc(r.oraDa || '') + '" data-end="' + esc(r.oraA || '') + '"></span>';
     html += '<div class="ecg-doc-wrap">';
     html += '<span class="ecg-doctor">' + esc(r.medico || '') + '</span>';
-    if (r.ecgBadge) html += '<span class="ecg-badge-chip">' + esc(r.ecgBadge) + '</span>';
+    if (r.ecgBadge) html += '<span class="ecg-badge-chip' + ecgBadgeClass(r.ecgBadge) + '">' + esc(r.ecgBadge) + '</span>';
     html += '</div>';
     if (ora) html += '<span class="ecg-time">' + ora + '</span>';
     html += '</div>';
@@ -1543,7 +1572,7 @@ function renderEcg(rows) {
         h += '<span class="ecg-status-dot gray" data-start="' + esc(r.oraDa || '') + '" data-end="' + esc(r.oraA || '') + '"></span>';
         h += '<div class="ecg-doc-wrap">';
         h += '<span class="ecg-doctor">' + esc(r.medico || '') + '</span>';
-        if (r.ecgBadge) h += '<span class="ecg-badge-chip">' + esc(r.ecgBadge) + '</span>';
+        if (r.ecgBadge) h += '<span class="ecg-badge-chip' + ecgBadgeClass(r.ecgBadge) + '">' + esc(r.ecgBadge) + '</span>';
         h += '</div>';
         h += '<span class="ecg-time">' + ora + '</span>';
         h += '</div>';
