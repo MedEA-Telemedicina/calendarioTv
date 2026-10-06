@@ -1276,7 +1276,8 @@ function processAndRender(data) {
     var htHpDone = !!(data.hpCountsExists || {})[htHpKey] && ((data.hpCountsMap || {})[htHpKey] || 0) >= 10;
     var htAllDone = htDoc.c16 ? htHcDone : (htHcDone && htHpDone);
     var htColor = htAllDone ? '#4ade80' : '#f48fb1';
-    holterCLines.push('<span class="n" style="color:' + htColor + ';">' + esc(htDoc.name) + '</span>');
+    var ht16Tag = htDoc.c16 ? ' <span style="font-size: 21px;font-weight:600;opacity:.75;">(16HC)</span>' : '';
+    holterCLines.push('<span class="n" style="color:' + htColor + ';">' + esc(htDoc.name) + ht16Tag + '</span>');
   }
   if (holterDocs.length > 0 && hcDocs.length > 0) {
     holterCLines.push('<span class="n" style="font-size: 11px;opacity:0.4;letter-spacing:2px;column-span:all;">── CONSUNTIVO ──</span>');
