@@ -627,6 +627,16 @@ html, body {
   color: #67e8f9;
   border-color: rgba(34,211,238,.4);
 }
+.ecg-badge-chip.ecg-200 {
+  background: rgba(251,146,60,.22);
+  color: #fdba74;
+  border-color: rgba(251,146,60,.6);
+}
+.ecg-badge-chip.ecg-150 {
+  background: rgba(167,139,250,.22);
+  color: #c4b5fd;
+  border-color: rgba(167,139,250,.6);
+}
 .ecg-empty {
   padding: 18px;
   text-align: center;
@@ -1410,6 +1420,7 @@ function processAndRender(data) {
       if (docData.ecg100 === true) ecgBadge = 'ECG 100';
       else if (docData.ecg75 === true) ecgBadge = 'ECG 75';
     }
+    ecgBadge = ecgDoppioLabel(ecgBadge, docData, dayIdx + '_0');
     ecgMattinaRows.push({ medico: ecgMattina[i].name, oraDa: oraDa, oraA: oraA, ecgBadge: ecgBadge });
   }
 
@@ -1447,6 +1458,7 @@ function processAndRender(data) {
       if (docData.ecg100 === true) ecgBadge = 'ECG 100';
       else if (docData.ecg75 === true) ecgBadge = 'ECG 75';
     }
+    ecgBadge = ecgDoppioLabel(ecgBadge, docData, dayIdx + '_1');
     ecgPomeriggioRows.push({ medico: ecgPomeriggio[i].name, oraDa: oraDaP, oraA: oraAP, ecgBadge: ecgBadge });
   }
   // Ordina per ora di inizio (senza orario in fondo), a parità ordine alfabetico
@@ -1466,10 +1478,20 @@ function processAndRender(data) {
 }
 
 /* ── ECG BADGE CLASS ── */
+/* Doppio turno ECG: flag weeks/<medico>/doppio/"<giorno>_<sessione>" === true  ->  100 -> 200, 75 -> 150 */
+function ecgDoppioLabel(label, docData, slotKey) {
+  if (!label) return label;
+  var dop = docData && docData.doppio && docData.doppio[slotKey] === true;
+  if (!dop) return label;
+  return String(label).replace(/\d+/, function(n) { return String(parseInt(n, 10) * 2); });
+}
+
 function ecgBadgeClass(label) {
   var n = String(label || '').replace(/\D/g, '');
   if (n === '100') return ' ecg-100';
   if (n === '75')  return ' ecg-75';
+  if (n === '200') return ' ecg-200';
+  if (n === '150') return ' ecg-150';
   return '';
 }
 
