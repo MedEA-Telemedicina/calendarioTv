@@ -221,6 +221,47 @@ html,body{background:#070b16}
 #refresh-icon{filter:drop-shadow(0 0 6px currentColor)}
 @media (prefers-reduced-motion:reduce){.card,.esame-block{animation:none}}
 .card-hdr::before{display:none}
+
+/* ═══ SCALA RIDOTTA PER TV 65" (Holter cardiaco invariato) ═══ */
+#header{height:70px;padding:0 28px}
+#loader-bar{top:73px}
+#viewer-wrap{top:76px;bottom:36px}
+#turni-container{padding:14px 22px}
+#footer{height:36px;font-size:14px;padding:0 28px}
+#refresh-icon{font-size:15px}
+#footer-logo-img{height:42px}
+#brand{gap:14px}
+#brand-title{font-size:15px;padding-left:14px}
+#data-completa{font-size:34px}
+.digit{width:34px;height:48px;font-size:36px;border-radius:9px}
+.sep{font-size:32px}
+.digit-sec .d{font-size:20px;width:14px}
+.digit-sec{padding-bottom:4px}
+
+.main-grid{gap:14px}
+.card-hdr{padding:13px 22px;font-size:28px}
+.hdr-time{font-size:20px;padding:3px 14px}
+.section-label{padding:14px 22px 4px}
+.tc-label,.ecg-label{font-size:14px;padding:3px 12px}
+.doc-section{padding:6px 22px 14px}
+#wrap-tc-mattina,#wrap-tc-pomeriggio{min-height:90px}
+.doc-name{font-size:34px}
+.doc-empty,.esame-empty{font-size:22px}
+.ecg-row{margin:6px 14px 0;padding:9px 14px;border-radius:14px}
+.doc-section .ecg-row:last-child{margin-bottom:14px}
+.ecg-row .ecg-doctor{font-size:30px}
+.ecg-row .ecg-time{font-size:24px;padding:3px 12px;border-radius:11px}
+.ecg-badge-chip{font-size:15px;padding:2px 9px}
+.ecg-status-dot{width:12px;height:12px;margin-right:12px}
+
+/* Esami: HC invariato (nome 38px), gli altri ridotti */
+.esami-grid{gap:12px}
+.esame-block:nth-child(1){flex:3 1 0}
+.esame-block:nth-child(2){flex:2 1 0}
+.esame-block:nth-child(2) .esame-hdr{font-size:19px;padding:12px 22px 0}
+.esame-block:nth-child(2) .esame-body{font-size:28px;padding:4px 22px 10px}
+.esame-block:nth-child(3) .esame-hdr,.esame-block:nth-child(4) .esame-hdr{font-size:17px;padding:10px 22px 0}
+.esame-block:nth-child(3) .esame-body,.esame-block:nth-child(4) .esame-body{font-size:26px;padding:4px 22px 10px}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
