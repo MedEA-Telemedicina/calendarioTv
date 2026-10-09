@@ -1459,17 +1459,23 @@ function fitEsami() {
   window.addEventListener('resize', function() { fitEsami(); fitTurni(); });
 })();
 
-/* ── AUTO-RIDIMENSIONAMENTO TURNI (Mattina/Pomeriggio): misura standard, si riduce solo se non entrano tutti ── */
+/* ── AUTO-RIDIMENSIONAMENTO TURNI: ECG e turni normali si riducono in modo indipendente ── */
 function fitTurni() {
   var cards = document.querySelectorAll('.main-grid > .card:not(.esami-grid)');
   Array.prototype.forEach.call(cards, function(card) {
-    var parts = card.querySelectorAll('.doc-section');
-    function setK(k) { Array.prototype.forEach.call(parts, function(w) { w.style.zoom = (k >= 1 ? '' : k); }); }
-    var k = 1, guard = 80;
-    setK(1);
-    while (guard-- > 0 && k > 0.35 && card.scrollHeight > card.clientHeight + 1) {
-      k = Math.round((k - 0.02) * 100) / 100;
-      setK(k);
+    var secs = Array.prototype.map.call(card.querySelectorAll('.doc-section'), function(w) {
+      return { el: w, k: 1 };
+    });
+    function apply(x) { x.el.style.zoom = (x.k >= 1 ? '' : x.k); }
+    secs.forEach(apply);
+    var guard = 200;
+    while (guard-- > 0 && card.scrollHeight > card.clientHeight + 1) {
+      // riduce solo la sezione che occupa più altezza (e non è già al minimo)
+      var cand = secs.filter(function(x) { return x.k > 0.35; })
+        .sort(function(a, b) { return b.el.getBoundingClientRect().height - a.el.getBoundingClientRect().height; })[0];
+      if (!cand) break;
+      cand.k = Math.round((cand.k - 0.02) * 100) / 100;
+      apply(cand);
     }
   });
 }
