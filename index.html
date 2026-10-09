@@ -275,6 +275,16 @@ html,body{background:#070b16}
 .ecg-badge-chip{font-size:.9375em;padding:.13em .6em}
 .ecg-status-dot{width:.75em;height:.75em;margin-right:.75em}
 .doc-empty{font-size:1.375em}
+
+/* Turno completo ed ECG: schede separate e indipendenti */
+.col{display:flex;flex-direction:column;gap:14px;min-height:0}
+.col .card.tc{flex:0 1 auto;max-height:46%}
+.col .card.ecg{flex:1 1 0;min-height:0}
+.col.mat .card::before{background:linear-gradient(90deg,#34d399,#2dd4bf,transparent)}
+.col.pom .card::before{background:linear-gradient(90deg,#fbbf24,#fb923c,transparent)}
+.card-hdr.sub{font-size:1.375rem;padding:.7rem 1.4rem;font-weight:700}
+.card.ecg .doc-section{padding-top:.4rem}
+#wrap-tc-mattina,#wrap-tc-pomeriggio{min-height:0}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -305,20 +315,28 @@ html,body{background:#070b16}
   <div id="turni-container">
     <div class="main-grid">
 
-      <div class="card">
-        <div class="card-hdr green">Mattina<span class="hdr-time">8:30 &ndash; 14:30</span></div>
-        <div class="section-label"><span class="tc-label">Turno completo</span></div>
-        <div class="doc-section" id="wrap-tc-mattina"><div class="doc-name" id="tc-mattina"></div></div>
-        <div class="section-label"><span class="ecg-label">Solo ECG</span></div>
-        <div class="doc-section" id="wrap-ecg-mattina"></div>
+      <div class="col mat">
+        <div class="card tc">
+          <div class="card-hdr green">Mattina<span class="hdr-time">8:30 &ndash; 14:30</span></div>
+          <div class="section-label"><span class="tc-label">Turno completo</span></div>
+          <div class="doc-section" id="wrap-tc-mattina"><div class="doc-name" id="tc-mattina"></div></div>
+        </div>
+        <div class="card ecg">
+          <div class="card-hdr green sub">Solo ECG</div>
+          <div class="doc-section" id="wrap-ecg-mattina"></div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-hdr orange">Pomeriggio<span class="hdr-time">14:30 &ndash; 20:30</span></div>
-        <div class="section-label"><span class="tc-label">Turno completo</span></div>
-        <div class="doc-section" id="wrap-tc-pomeriggio"><div class="doc-name" id="tc-pomeriggio"></div></div>
-        <div class="section-label"><span class="ecg-label">Solo ECG</span></div>
-        <div class="doc-section" id="wrap-ecg-pomeriggio"></div>
+      <div class="col pom">
+        <div class="card tc">
+          <div class="card-hdr orange">Pomeriggio<span class="hdr-time">14:30 &ndash; 20:30</span></div>
+          <div class="section-label"><span class="tc-label">Turno completo</span></div>
+          <div class="doc-section" id="wrap-tc-pomeriggio"><div class="doc-name" id="tc-pomeriggio"></div></div>
+        </div>
+        <div class="card ecg">
+          <div class="card-hdr orange sub">Solo ECG</div>
+          <div class="doc-section" id="wrap-ecg-pomeriggio"></div>
+        </div>
       </div>
 
       <div class="card esami-grid">
@@ -1473,23 +1491,16 @@ function fitEsami() {
   setInterval(function() { fitEsami(); fitTurni(); }, 5000);
 })();
 
-/* ── AUTO-RIDIMENSIONAMENTO TURNI: ECG e turni normali si riducono in modo indipendente ── */
+/* ── AUTO-RIDIMENSIONAMENTO TURNI: ogni scheda (turno completo / ECG) si riduce da sola ── */
 function fitTurni() {
-  var cards = document.querySelectorAll('.main-grid > .card:not(.esami-grid)');
-  Array.prototype.forEach.call(cards, function(card) {
-    var secs = Array.prototype.map.call(card.querySelectorAll('.doc-section'), function(w) {
-      return { el: w, k: 1 };
-    });
-    function apply(x) { x.el.style.fontSize = (x.k >= 1 ? '' : (x.k * 16) + 'px'); }
-    secs.forEach(apply);
-    var guard = 200;
-    while (guard-- > 0 && card.scrollHeight > card.clientHeight + 1) {
-      // riduce solo la sezione che occupa più altezza (e non è già al minimo)
-      var cand = secs.filter(function(x) { return x.k > 0.35; })
-        .sort(function(a, b) { return b.el.getBoundingClientRect().height - a.el.getBoundingClientRect().height; })[0];
-      if (!cand) break;
-      cand.k = Math.round((cand.k - 0.02) * 100) / 100;
-      apply(cand);
+  Array.prototype.forEach.call(document.querySelectorAll('.col > .card'), function(card) {
+    var w = card.querySelector('.doc-section');
+    if (!w) return;
+    var k = 1, guard = 120;
+    w.style.fontSize = '';
+    while (guard-- > 0 && k > 0.3 && card.scrollHeight > card.clientHeight + 1) {
+      k = Math.round((k - 0.02) * 100) / 100;
+      w.style.fontSize = (k * 16) + 'px';
     }
   });
 }
