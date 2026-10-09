@@ -15,7 +15,7 @@
   --radius:1.25rem;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{font-size:min(.8333vw,1.4815vh)}
+html{font-size:16px}
 html,body{width:100%;height:100%;overflow:hidden;color:var(--text);
   background:var(--bg);font-family:'Inter','Segoe UI',Arial,sans-serif;
   -webkit-font-smoothing:antialiased}
@@ -1455,9 +1455,24 @@ function fitEsami() {
 }
 (function() {
   var _orig = processAndRender;
-  processAndRender = function(d) { _orig(d); fitEsami(); };
-  window.addEventListener('resize', fitEsami);
+  processAndRender = function(d) { _orig(d); fitEsami(); fitTurni(); };
+  window.addEventListener('resize', function() { fitEsami(); fitTurni(); });
 })();
+
+/* ── AUTO-RIDIMENSIONAMENTO TURNI (Mattina/Pomeriggio): misura standard, si riduce solo se non entrano tutti ── */
+function fitTurni() {
+  var cards = document.querySelectorAll('.main-grid > .card:not(.esami-grid)');
+  Array.prototype.forEach.call(cards, function(card) {
+    var parts = card.querySelectorAll('.doc-section');
+    function setK(k) { Array.prototype.forEach.call(parts, function(w) { w.style.zoom = (k >= 1 ? '' : k); }); }
+    var k = 1, guard = 80;
+    setK(1);
+    while (guard-- > 0 && k > 0.35 && card.scrollHeight > card.clientHeight + 1) {
+      k = Math.round((k - 0.02) * 100) / 100;
+      setK(k);
+    }
+  });
+}
 </script>
 </body>
 </html>
