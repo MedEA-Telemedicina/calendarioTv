@@ -264,6 +264,17 @@ html,body{background:#070b16}
 .esame-block:nth-child(3) .esame-body,.esame-block:nth-child(4) .esame-body{font-size:1.625rem;padding:0.25rem 1.375rem 0.625rem}
 .esame-body .n[style*="column-span"]{font-size:.6875rem!important}
 .main-grid{grid-template-rows:minmax(0,1fr)}
+
+/* Turni: misure relative al contenitore, così si possono ridurre senza "zoom" */
+.doc-section{font-size:1rem}
+.doc-name{font-size:2.125em}
+.ecg-row{margin:.375em .875em 0;padding:.5625em .875em;border-radius:.875em}
+.doc-section .ecg-row:last-child{margin-bottom:.875em}
+.ecg-row .ecg-doctor{font-size:1.875em}
+.ecg-row .ecg-time{font-size:1.5em;padding:.125em .5em;border-radius:.46em}
+.ecg-badge-chip{font-size:.9375em;padding:.13em .6em}
+.ecg-status-dot{width:.75em;height:.75em;margin-right:.75em}
+.doc-empty{font-size:1.375em}
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1458,6 +1469,8 @@ function fitEsami() {
   var _orig = processAndRender;
   processAndRender = function(d) { _orig(d); fitEsami(); fitTurni(); };
   window.addEventListener('resize', function() { fitEsami(); fitTurni(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function() { fitEsami(); fitTurni(); });
+  setInterval(function() { fitEsami(); fitTurni(); }, 5000);
 })();
 
 /* ── AUTO-RIDIMENSIONAMENTO TURNI: ECG e turni normali si riducono in modo indipendente ── */
@@ -1467,7 +1480,7 @@ function fitTurni() {
     var secs = Array.prototype.map.call(card.querySelectorAll('.doc-section'), function(w) {
       return { el: w, k: 1 };
     });
-    function apply(x) { x.el.style.zoom = (x.k >= 1 ? '' : x.k); }
+    function apply(x) { x.el.style.fontSize = (x.k >= 1 ? '' : (x.k * 16) + 'px'); }
     secs.forEach(apply);
     var guard = 200;
     while (guard-- > 0 && card.scrollHeight > card.clientHeight + 1) {
