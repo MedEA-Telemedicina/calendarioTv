@@ -266,7 +266,7 @@ html,body{background:#070b16}
 .main-grid{grid-template-rows:minmax(0,1fr)}
 
 /* Turni: misure relative al contenitore, così si possono ridurre senza "zoom" */
-.doc-section{font-size:1rem}
+.doc-section{font-size:.85rem}
 .doc-name{font-size:2.125em}
 .ecg-row{margin:.375em .875em 0;padding:.5625em .875em;border-radius:.875em}
 .doc-section .ecg-row:last-child{margin-bottom:.875em}
@@ -1498,9 +1498,10 @@ function fitTurni() {
     if (!w) return;
     var k = 1, guard = 120;
     w.style.fontSize = '';
+    var base = parseFloat(getComputedStyle(w).fontSize) || 14;
     while (guard-- > 0 && k > 0.3 && card.scrollHeight > card.clientHeight + 1) {
       k = Math.round((k - 0.02) * 100) / 100;
-      w.style.fontSize = (k * 16) + 'px';
+      w.style.fontSize = (k * base) + 'px';
     }
   });
 }
