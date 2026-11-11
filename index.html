@@ -119,6 +119,7 @@ html,body{width:100%;height:100%;overflow:hidden;color:var(--text);
 .ecg-badge-chip.ecg-75{background:rgba(34,211,238,.13);color:#67e8f9;border-color:rgba(34,211,238,.38)}
 .ecg-badge-chip.ecg-200{background:rgba(251,146,60,.16);color:#fdba74;border-color:rgba(251,146,60,.5)}
 .ecg-badge-chip.ecg-150{background:rgba(167,139,250,.16);color:#c4b5fd;border-color:rgba(167,139,250,.5)}
+.ecg-badge-chip.ecg-ped{background:rgba(236,72,153,.2);color:#f9a8d4;border-color:rgba(236,72,153,.5);justify-content:center;min-width:2.2em}
 
 /* ESAMI: quattro schede impilate */
 .esami-grid{background:none;border:none;border-radius:0;overflow:visible;gap:0.875rem}
@@ -965,7 +966,7 @@ function processAndRender(data) {
     var list = ecgOrariDay[session] || [];
     for (var x = 0; x < list.length; x++) {
       if (list[x].key === docKey || list[x].name === docKey) {
-        return { start: list[x].orario_start || '', end: list[x].orario_end || '', tipo: list[x].tipo || '' };
+        return { start: list[x].orario_start || '', end: list[x].orario_end || '', tipo: list[x].tipo || '', raw: list[x] };
       }
     }
     return null;
@@ -1009,7 +1010,8 @@ function processAndRender(data) {
       else if (docData.ecg75 === true) ecgBadge = 'ECG 75';
     }
     ecgBadge = ecgDoppioLabel(ecgBadge, docData, dayIdx + '_0');
-    ecgMattinaRows.push({ medico: ecgMattina[i].name, oraDa: oraDa, oraA: oraA, ecgBadge: ecgBadge });
+    var pedM = isPediatrici(docKey, cardiologists);
+    ecgMattinaRows.push({ medico: ecgMattina[i].name, oraDa: oraDa, oraA: oraA, ecgBadge: ecgBadge, pediatrici: pedM });
   }
 
   for (var i = 0; i < ecgPomeriggio.length; i++) {
@@ -1047,7 +1049,8 @@ function processAndRender(data) {
       else if (docData.ecg75 === true) ecgBadge = 'ECG 75';
     }
     ecgBadge = ecgDoppioLabel(ecgBadge, docData, dayIdx + '_1');
-    ecgPomeriggioRows.push({ medico: ecgPomeriggio[i].name, oraDa: oraDaP, oraA: oraAP, ecgBadge: ecgBadge });
+    var pedP = isPediatrici(docKey, cardiologists);
+    ecgPomeriggioRows.push({ medico: ecgPomeriggio[i].name, oraDa: oraDaP, oraA: oraAP, ecgBadge: ecgBadge, pediatrici: pedP });
   }
   // Ordina per ora di inizio (senza orario in fondo), a parità ordine alfabetico
   function sortEcgRows(rows) {
@@ -1063,6 +1066,42 @@ function processAndRender(data) {
   renderEcgInCard('wrap-ecg-mattina', sortEcgRows(ecgMattinaRows));
   renderEcgInCard('wrap-ecg-pomeriggio', sortEcgRows(ecgPomeriggioRows));
   updateEcgDots();
+}
+
+/* ── BADGE PEDIATRICI (P) ──
+   Un medico ECG che referta pediatrici mostra un badge "P" prima del badge ECG. */
+/* Abbinamento medico <-> anagrafica cardiologi, identico a quello di Situazione Medici */
+    function matchCardiologoSM(docKey, cardiologi) {
+      if (!cardiologi || !docKey) return null;
+      var dkUp = docKey.toUpperCase().replace(/\u00B7/g, ' ').replace(/[\u2018\u2019\u0060\u00B4\u02BC]/g, "'").trim();
+      var dkParts = dkUp.split(/\s+/);
+      for (var ci = 0; ci < cardiologi.length; ci++) {
+        var c = cardiologi[ci];
+        if (c.attivo === false) continue;
+        var cFullName = ((c.surname || '') + ' ' + (c.firstname || '')).toUpperCase().replace(/[\u2018\u2019\u0060\u00B4\u02BC]/g, "'").trim();
+        var cName = (c.name || '').toUpperCase().replace(/[\u2018\u2019\u0060\u00B4\u02BC]/g, "'").trim();
+        var cVName = (c.vercelName || '').toUpperCase().replace(/\u00B7/g, ' ').replace(/[\u2018\u2019\u0060\u00B4\u02BC]/g, "'").trim();
+        if (dkUp === cFullName || dkUp === cName || dkUp === cVName) return c;
+        var cSurname = (c.surname || '').toUpperCase().trim();
+        var cFirst = (c.firstname || '').toUpperCase().trim();
+        if (cSurname && cFirst && dkParts.length >= 2) {
+          var _s0 = dkParts[0].replace(/'/g,''), _s1 = cSurname.replace(/'/g,'');
+          if ((_s0 === _s1 || dkParts[0] === cSurname) && cFirst.charAt(0) === dkParts[1].replace(/\./g,'').charAt(0)) return c;
+          var _sL = dkParts[dkParts.length-1].replace(/'/g,'');
+          if ((_sL === _s1 || dkParts[dkParts.length-1] === cSurname) && cFirst.charAt(0) === dkParts[0].replace(/\./g,'').charAt(0)) return c;
+        }
+        var cParts = cFullName.split(/\s+/);
+        if (cParts.length >= 2 && dkParts.length >= 2) {
+          if (cParts[0] === dkParts[0] && dkParts[1].replace(/\./g,'').charAt(0) === cParts[1].charAt(0)) return c;
+        }
+      }
+      return null;
+    }
+
+/* Badge P: come in Situazione Medici, il medico referta pediatrici se nell'anagrafica cardiologi pediatrici === "SI" */
+function isPediatrici(docKey, cardiologists) {
+  var c = matchCardiologoSM(docKey, cardiologists);
+  return !!(c && c.pediatrici === 'SI');
 }
 
 /* ── ECG BADGE CLASS ── */
@@ -1141,6 +1180,7 @@ function renderEcgInCard(wrapId, rows) {
     html += '<span class="ecg-status-dot gray" data-start="' + esc(r.oraDa || '') + '" data-end="' + esc(r.oraA || '') + '"></span>';
     html += '<div class="ecg-doc-wrap">';
     html += '<span class="ecg-doctor">' + esc(r.medico || '') + '</span>';
+    if (r.pediatrici) html += '<span class="ecg-badge-chip ecg-ped" title="Referta pediatrici">P</span>';
     if (r.ecgBadge) html += '<span class="ecg-badge-chip' + ecgBadgeClass(r.ecgBadge) + '">' + esc(r.ecgBadge) + '</span>';
     html += '</div>';
     if (ora) html += '<span class="ecg-time">' + ora + '</span>';
@@ -1182,6 +1222,7 @@ function renderEcg(rows) {
         h += '<span class="ecg-status-dot gray" data-start="' + esc(r.oraDa || '') + '" data-end="' + esc(r.oraA || '') + '"></span>';
         h += '<div class="ecg-doc-wrap">';
         h += '<span class="ecg-doctor">' + esc(r.medico || '') + '</span>';
+        if (r.pediatrici) h += '<span class="ecg-badge-chip ecg-ped" title="Referta pediatrici">P</span>';
         if (r.ecgBadge) h += '<span class="ecg-badge-chip' + ecgBadgeClass(r.ecgBadge) + '">' + esc(r.ecgBadge) + '</span>';
         h += '</div>';
         h += '<span class="ecg-time">' + ora + '</span>';
